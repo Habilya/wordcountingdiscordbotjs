@@ -2,21 +2,24 @@
   "name": "wordcountingdiscordbotjs",
   "version": "1.0.0",
   "description": "A discord bot to count how many time a specific word or a pattern was spoken",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "jest --watchAll --verbose"
+    "test": "jest --watchAll --verbose",
+    "test-coverage": "jest --verbose --coverage"
   },
   "jest": {
     "collectCoverageFrom": [
       "test/**/*.{js, jsx, ts, tsx }"
     ],
-    "testPathIgnorePatterns" : [
-      ".c9/*" 
+    "testPathIgnorePatterns": [
+      ".c9/*"
     ]
   },
   "author": "Habilya",
   "license": "GPL v3.0",
   "dependencies": {
+    "discord.js": "^14.13.0",
+    "dotenv": "^16.3.1",
     "jest": "^29.7.0"
   }
 }
