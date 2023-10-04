@@ -1,0 +1,1 @@
+A discord bot to count how many time a specific word or a pattern was spoken.
