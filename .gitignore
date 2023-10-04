@@ -2,6 +2,7 @@
 .gitignore
 package-lock.json
 
+
 # c9 cloud editor (ide folder)
 .c9/
 
@@ -88,6 +89,8 @@ web_modules/
 .env.test.local
 .env.production.local
 .env.local
+# The true .env file in the conf folder
+conf/.env
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

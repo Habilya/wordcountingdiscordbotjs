@@ -15,10 +15,10 @@ class Stack {
 }
 
 describe('.env reading test', () => {
-    require('dotenv').config({ path: 'conf/.test.env' });
     
     it('can read .env TOKEN', () => {
         // Arrange
+        require('dotenv').config({ path: 'conf/.test.env' });
         
         // Act
         let expected = process.env.TOKEN;
