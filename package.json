@@ -1,10 +1,10 @@
 {
   "name": "wordcountingdiscordbotjs",
   "version": "1.0.0",
-  "description": "A discord bot to count how many time a specific word or a pattern was spoken",
+  "description": "A discord bot to count how many times a specific word or a pattern was spoken",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest --watchAll --verbose",
+    "test-mon": "jest --watchAll --verbose",
     "test-coverage": "jest --verbose --coverage"
   },
   "jest": {
