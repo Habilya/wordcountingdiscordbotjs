@@ -4,6 +4,8 @@ const getLocalCommands = require('../../utils/getLocalCommands');
 
 module.exports = async(client) => {
     try {
+        console.log("Initializing commands...");
+        
         const localCommands = getLocalCommands();
         const applicationCommands = await getApplicationCommands(
             client,

@@ -1,15 +1,9 @@
 require('dotenv').config({ path: 'conf/.env' });
-const { Client, IntentsBitField } = require("discord.js");
-const eventHandler = require("./handlers/eventHandler")
+//TODO: const { clientId, guildId, token } = require('./config.json'); instead of process.env.TOKEN
+const eventHandler = require("./handlers/eventHandler");
+const createBotClient = require("./utils/createBotClient");
 
-const client = new Client({
-    intents: [
-        IntentsBitField.Flags.Guilds,
-        IntentsBitField.Flags.GuildMembers,
-        IntentsBitField.Flags.GuildMessages,
-        IntentsBitField.Flags.MessageContent,
-    ],
-});
+const client = createBotClient();
 
 eventHandler(client);
 

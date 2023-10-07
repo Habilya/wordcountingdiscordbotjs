@@ -1,9 +1,10 @@
 
 describe('.env reading test', () => {
     // Use .toEqual(); for objects by value comparison
+    require('dotenv').config({ path: 'conf/.test.env' });
     
     beforeEach(() => {
-        require('dotenv').config({ path: 'conf/.test.env' });
+        // Use to clear the results structures before each test
     });
     
     
