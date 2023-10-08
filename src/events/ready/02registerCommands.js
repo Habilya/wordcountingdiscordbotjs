@@ -1,3 +1,4 @@
+const config = require('../../../conf/config.json');
 const areCommandsDifferent = require('../../utils/areCommandsDifferent');
 const getApplicationCommands = require('../../utils/getApplicationCommands');
 const getLocalCommands = require('../../utils/getLocalCommands');
@@ -9,7 +10,7 @@ module.exports = async(client) => {
         const localCommands = getLocalCommands();
         const applicationCommands = await getApplicationCommands(
             client,
-            process.env.GUILD_ID
+            config.GuildId
         );
 
         for (const localCommand of localCommands) {
@@ -33,6 +34,8 @@ module.exports = async(client) => {
                     });
 
                     console.log(`🔁 Edited command "${name}".`);
+                } else {
+                    console.log(`Command: "${name}" unchanged.`);
                 }
             } else {
                 if (localCommand.isDeleted) {
@@ -52,6 +55,6 @@ module.exports = async(client) => {
             }
         }
     } catch (error) {
-        console.log(`Unhandled exception while registering commands: ${error}`);
+        console.log(`Unhandled exception while registering commands: ${error}\n${error.stack}`);
     }
 };

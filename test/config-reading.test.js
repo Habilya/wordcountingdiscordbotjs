@@ -1,50 +1,55 @@
 
 describe('.env reading test', () => {
     // Use .toEqual(); for objects by value comparison
-    require('dotenv').config({ path: 'conf/.test.env' });
+    const config = require('../conf/config.test.json');
     
     beforeEach(() => {
         // Use to clear the results structures before each test
     });
     
     
-    it('can read .env TOKEN', () => {
+    it('can read config.json TOKEN', () => {
         // Arrange
+        let expected = "[YOUR_BOT_TOKEN_HERE]";
         
         // Act
-        let expected = process.env.TOKEN;
+        let actual = config.Token;
         
         // Assert
-        expect(expected).toBe('[YOUR_BOT_TOKEN_HERE]');
+        expect(actual).toBe(expected);
     });
     
-    it('can read .env GUILD_ID', () => {
+    it('can read config.json GUILD_ID', () => {
         // Arrange
+        let expected = "[YOUR_DISCORD_SERVER_ID_HERE]";
         
         // Act
-        let expected = process.env.GUILD_ID;
+        let actual = config.GuildId;
         
         // Assert
-        expect(expected).toBe('[YOUR_DISCORD_SERVER_ID_HERE]');
+        expect(actual).toBe(expected);
     });
     
-    it('can read .env CLIENT_ID', () => {
+    it('can read config.json CLIENT_ID', () => {
         // Arrange
+        let expected = "[YOUR_BOT_ID_HERE]";
         
         // Act
-        let expected = process.env.CLIENT_ID;
+        let actual = config.ClientId;
         
         // Assert
-        expect(expected).toBe('[YOUR_BOT_ID_HERE]');
+        expect(actual).toBe(expected);
     });
     
-    it('can read .env STATUS_ACTIVITY_NAME', () => {
+    it('can read config.json STATUS_ACTIVITY_NAME', () => {
         // Arrange
+        let expected = "[YPUR_BOT_STATUS_ACTIVITY_NAME]";
         
         // Act
-        let expected = process.env.STATUS_ACTIVITY_NAME;
+        let actual = config.StatusActivityName;
         
         // Assert
-        expect(expected).toBe('[YPUR_BOT_STATUS_ACTIVITY_NAME]');
+        expect(actual).toBe(expected);
     });
+    
 });
