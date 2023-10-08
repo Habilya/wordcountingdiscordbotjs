@@ -2,10 +2,11 @@ const config = require('../../../conf/config.json');
 const areCommandsDifferent = require('../../utils/areCommandsDifferent');
 const getApplicationCommands = require('../../utils/getApplicationCommands');
 const getLocalCommands = require('../../utils/getLocalCommands');
+const logger = require('../../logger/logger');
 
 module.exports = async(client) => {
     try {
-        console.log("Initializing commands...");
+        logger.info("Initializing commands...");
         
         const localCommands = getLocalCommands();
         const applicationCommands = await getApplicationCommands(
@@ -23,7 +24,7 @@ module.exports = async(client) => {
             if (existingCommand) {
                 if (localCommand.isDeleted) {
                     await applicationCommands.delete(existingCommand.id);
-                    console.log(`🗑 Deleted command "${name}".`);
+                    logger.info(`🗑 Deleted command "${name}".`);
                     continue;
                 }
 
@@ -33,13 +34,13 @@ module.exports = async(client) => {
                         options,
                     });
 
-                    console.log(`🔁 Edited command "${name}".`);
+                    logger.info(`🔁 Edited command "${name}".`);
                 } else {
-                    console.log(`Command: "${name}" unchanged.`);
+                    logger.info(`Command: "${name}" unchanged.`);
                 }
             } else {
                 if (localCommand.isDeleted) {
-                    console.log(
+                    logger.info(
                         `⏩ Skipping registering command "${name}" as it's set to delete.`
                     );
                     continue;
@@ -51,10 +52,10 @@ module.exports = async(client) => {
                     options,
                 });
 
-                console.log(`👍 Registered command "${name}."`);
+                logger.info(`👍 Registered command "${name}."`);
             }
         }
     } catch (error) {
-        console.log(`Unhandled exception while registering commands: ${error}\n${error.stack}`);
+        logger.error(`Unhandled exception while registering commands: ${error}`, error);
     }
 };
