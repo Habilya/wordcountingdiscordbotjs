@@ -1,4 +1,5 @@
 const getLocalCommands = require('../../utils/getLocalCommands');
+const logger = require('../../logger/logger');
 
 module.exports = async (client, interaction) => {
 
@@ -39,6 +40,6 @@ module.exports = async (client, interaction) => {
 
         await commandObject.callback(client, interaction);
     } catch(error) {
-        console.log(`Unhandled exception while running command: ${interaction.commandName} - ${error}`);
+        logger.error(`Unhandled exception while running command: ${interaction.commandName} - ${error}`, error);
     }
 };

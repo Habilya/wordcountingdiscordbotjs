@@ -1,7 +1,8 @@
 const config = require('../../../conf/config.json');
+const logger = require('../../logger/logger');
 
 module.exports = (client) => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    logger.info(`Logged in as ${client.user.tag}!`);
 
     client.user.setActivity({
         name: config.StatusActivityName
