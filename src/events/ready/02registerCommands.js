@@ -1,17 +1,15 @@
-const config = require('../../../conf/config.json');
 const areCommandsDifferent = require('../../utils/areCommandsDifferent');
 const getApplicationCommands = require('../../utils/getApplicationCommands');
 const getLocalCommands = require('../../utils/getLocalCommands');
-const logger = require('../../logger/logger');
 
-module.exports = async(client) => {
+module.exports = async(discordBot) => {
     try {
-        logger.info("Initializing commands...");
+        discordBot.getLogger().info("Initializing commands...");
         
         const localCommands = getLocalCommands();
         const applicationCommands = await getApplicationCommands(
-            client,
-            config.GuildId
+            discordBot.getClient(),
+            discordBot.getConfig().GuildId
         );
 
         for (const localCommand of localCommands) {
@@ -24,7 +22,7 @@ module.exports = async(client) => {
             if (existingCommand) {
                 if (localCommand.isDeleted) {
                     await applicationCommands.delete(existingCommand.id);
-                    logger.info(`🗑 Deleted command "${name}".`);
+                    discordBot.getLogger().info(`🗑 Deleted command "${name}".`);
                     continue;
                 }
 
@@ -34,13 +32,13 @@ module.exports = async(client) => {
                         options,
                     });
 
-                    logger.info(`🔁 Edited command "${name}".`);
+                    discordBot.getLogger().info(`🔁 Edited command "${name}".`);
                 } else {
-                    logger.info(`Command: "${name}" unchanged.`);
+                    discordBot.getLogger().info(`Command: "${name}" unchanged.`);
                 }
             } else {
                 if (localCommand.isDeleted) {
-                    logger.info(
+                    discordBot.getLogger().info(
                         `⏩ Skipping registering command "${name}" as it's set to delete.`
                     );
                     continue;
@@ -52,10 +50,10 @@ module.exports = async(client) => {
                     options,
                 });
 
-                logger.info(`👍 Registered command "${name}."`);
+                discordBot.getLogger().info(`👍 Registered command "${name}."`);
             }
         }
     } catch (error) {
-        logger.error(`Unhandled exception while registering commands: ${error}`, error);
+        discordBot.getLogger().error(`Unhandled exception while registering commands: ${error}\n${error.stack}`);
     }
 };

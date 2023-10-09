@@ -1,7 +1,6 @@
 const getLocalCommands = require('../../utils/getLocalCommands');
-const logger = require('../../logger/logger');
 
-module.exports = async (client, interaction) => {
+module.exports = async (discordBot, interaction) => {
 
     if(!interaction.isChatInputCommand()) return;
 
@@ -38,8 +37,8 @@ module.exports = async (client, interaction) => {
             }
         }
 
-        await commandObject.callback(client, interaction);
+        await commandObject.callback(discordBot, interaction);
     } catch(error) {
-        logger.error(`Unhandled exception while running command: ${interaction.commandName} - ${error}`, error);
+        discordBot.getLogger().error(`Unhandled exception while running command: ${interaction.commandName} - ${error}\n${error.stack}`);
     }
 };

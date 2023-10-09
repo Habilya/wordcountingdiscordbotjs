@@ -19,7 +19,6 @@
   "license": "GPL v3.0",
   "dependencies": {
     "discord.js": "^14.13.0",
-    "dotenv": "^16.3.1",
     "jest": "^29.7.0",
     "winston": "^3.11.0",
     "winston-daily-rotate-file": "^4.7.1"

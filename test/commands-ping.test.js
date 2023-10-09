@@ -1,4 +1,4 @@
-const createBotClient = require("../src/utils/createBotClient");
+const discordBot = require("../src/configure/discordBot");
 const ping = require("../src/commands/misc/ping").callback;
 
 
@@ -7,14 +7,14 @@ describe('Command ping.js tests', () => {
     it('Command /ping reply Should Match', async () => {
       
       // Arrange
-      const client = createBotClient();
+      discordBot.initDiscordBotClient();
       const message = {
         reply: jest.fn(),
         content: 'ping'
       };
             
       // Act
-      await ping(client, message);
+      await ping(discordBot.client, message);
       
       // Assert
       expect(message.reply).toHaveBeenCalledWith("Pong");
