@@ -7,7 +7,7 @@ module.exports = {
 
     permissionsRequired: [PermissionFlagsBits.Administrator],
 
-    callback: (client, interaction) => {
+    callback: (discordBot, interaction) => {
         interaction.reply("Pong");
     },
 };

@@ -1,12 +1,12 @@
-
-describe('eventHandler.js tests', () => {
-
-    require('dotenv').config({ path: 'conf/.test.env' });
-    const createBotClient = require("../src/utils/createBotClient");
-    const eventHandler = require("../src/handlers/eventHandler");
+const discordBot = require("../src/configure/discordBot");
+const eventHandler = require("../src/handlers/eventHandler");
     
-    const client = createBotClient();
-    eventHandler(client);
+    
+describe('eventHandler.js tests', () => {
+    
+    discordBot.initDiscordBotClient();
+    
+    eventHandler(discordBot);
     
     beforeEach(() => {
         // Use to clear the results structures before each test
@@ -19,7 +19,7 @@ describe('eventHandler.js tests', () => {
         let expected = 3;
         
         // Act
-        let actual = client._eventsCount;
+        let actual = discordBot.getClient()._eventsCount;
         
         // Assert
         expect(actual).toBe(expected);
@@ -35,7 +35,7 @@ describe('eventHandler.js tests', () => {
         };
         
         // Act
-        let actual = client._events;
+        let actual = discordBot.getClient()._events;
         
         // Assert
         expect(actual).toEqual(expected);

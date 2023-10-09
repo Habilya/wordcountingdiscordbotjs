@@ -1,10 +1,7 @@
-const config = require('../../../conf/config.json');
-const logger = require('../../logger/logger');
+module.exports = (discordBot) => {
+    discordBot.getLogger().info(`Logged in as ${discordBot.getClient().user.tag}!`);
 
-module.exports = (client) => {
-    logger.info(`Logged in as ${client.user.tag}!`);
-
-    client.user.setActivity({
-        name: config.StatusActivityName
+    discordBot.getClient().user.setActivity({
+        name: discordBot.getConfig().StatusActivityName
     });
 };
