@@ -17,7 +17,10 @@ describe('Command ping.js tests', () => {
       await ping(discordBot.client, message);
       
       // Assert
-      expect(message.reply).toHaveBeenCalledWith("Pong");
+      expect(message.reply).toHaveBeenCalledWith({
+            content: 'pong',
+            ephemeral: true
+        });
       
     });
     
