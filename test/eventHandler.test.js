@@ -16,7 +16,7 @@ describe('eventHandler.js tests', () => {
     
     it('_eventsCount Should Match', () => {
         // Arrange
-        let expected = 3;
+        let expected = 4;
         
         // Act
         let actual = discordBot.getClient()._eventsCount;
@@ -31,7 +31,8 @@ describe('eventHandler.js tests', () => {
         let expected = {
             shardDisconnect: expect.any(Function),
             interactionCreate: expect.any(Function), // Command handler module should be initialized
-            ready: expect.any(Function) // onReady module should be initialized 
+            ready: expect.any(Function), // onReady module should be initialized
+            messageCreate: expect.any(Function) // onReady module should be initialized
         };
         
         // Act

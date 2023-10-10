@@ -7,11 +7,12 @@ module.exports = (discordBot) => {
     for (const eventFolder of eventFolders) {
         const eventFiles = getAllFiles(eventFolder);
         eventFiles.sort((a, b) => a > b);
-
+        
         const eventName = eventFolder.replace(/\\/g, "/").split("/").pop();
         
         discordBot.getClient().on(eventName, async(arg) => {
             for (const eventFile of eventFiles) {
+                discordBot.getLogger().info(`Processing event on:${eventName} callback: ${path.basename(eventFile)}`);
                 const evenFunction = require(eventFile);
                 await evenFunction(discordBot, arg);
             }
