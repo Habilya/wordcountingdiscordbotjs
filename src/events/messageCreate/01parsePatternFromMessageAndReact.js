@@ -3,6 +3,8 @@ module.exports = async (discordBot, message) => {
         
         if (!isValid()) return;
         
+        // TODO: write tests for 02registerCommands.js
+        
         // TODO: regexes should be stored in a list
         // TODO: add /regex-reaction-add command to add regex - emojii to a list
         // TODO: add /regex-reaction-list to list all the regexes
@@ -20,7 +22,7 @@ module.exports = async (discordBot, message) => {
         
         
         function isValid() {
-            if (discordBot.getConfig().isReactionToUserMessagesEnabled) return false;
+            if (!discordBot.getConfig().isReactionToUserMessagesEnabled) return false;
             if (!message.inGuild()) return false;
             if (message.author.bot) return false;
             if (message.author.system) return false;

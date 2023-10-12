@@ -1,5 +1,5 @@
 
-describe('eventHandler.js tests', () => {
+describe('getLocalCommands.js tests', () => {
 
     const getLocalCommands = require("../src/utils/getLocalCommands");
     
