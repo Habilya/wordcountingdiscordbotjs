@@ -1,8 +1,7 @@
 module.exports = async (discordBot, message) => {
     try {
         
-        if (message.author.bot) return;
-        if (message.author.system) return;
+        if (!isValid()) return;
         
         // TODO: regexes should be stored in a list
         // TODO: add /regex-reaction-add command to add regex - emojii to a list
@@ -19,6 +18,16 @@ module.exports = async (discordBot, message) => {
             message.react('<:heheboyyy:1038851949363200020>');
         }
         
+        
+        function isValid() {
+            if (discordBot.getConfig().isReactionToUserMessagesEnabled) return false;
+            if (!message.inGuild()) return false;
+            if (message.author.bot) return false;
+            if (message.author.system) return false;
+            
+            // assuming is valid
+            return true;
+        }
         
     } catch(error) {
         discordBot.getLogger().error(`Unhandled exception while parsing message to react: ${message} - ${error}\n${error.stack}`);

@@ -12,15 +12,18 @@ describe('Command ping.js tests', () => {
         reply: jest.fn(),
         content: 'ping'
       };
+      
+      const expected = {
+          content: 'pong',
+          ephemeral: true
+      };
+      
             
       // Act
       await ping(discordBot.client, message);
       
       // Assert
-      expect(message.reply).toHaveBeenCalledWith({
-            content: 'pong',
-            ephemeral: true
-        });
+      expect(message.reply).toHaveBeenCalledWith(expected);
       
     });
     
