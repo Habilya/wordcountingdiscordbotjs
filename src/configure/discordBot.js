@@ -1,6 +1,6 @@
-const config = require('../../conf/config.json');
-const logger = require('../logger/logger');
-const { Client, IntentsBitField } = require("discord.js");
+let config = require('../../conf/config.json');
+let logger = require('../logger/logger');
+let { Client, IntentsBitField } = require("discord.js");
 
 let client;
 let isValid;
