@@ -2,5 +2,6 @@
     "Token": "[YOUR_BOT_TOKEN_HERE]",
     "GuildId": "[YOUR_DISCORD_SERVER_ID_HERE]",
     "ClientId": "[YOUR_BOT_ID_HERE]",
-    "StatusActivityName": "[YPUR_BOT_STATUS_ACTIVITY_NAME]"
+    "BotActivityStatusName": "[YOUR_BOT_STATUS_ACTIVITY_NAME]",
+    "isReactionToUserMessagesEnabled": true
 }
