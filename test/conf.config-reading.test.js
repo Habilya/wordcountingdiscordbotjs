@@ -1,5 +1,5 @@
 
-describe('.env reading test', () => {
+describe('config.json reading test', () => {
     // Use .toEqual(); for objects by value comparison
     const config = require('../conf/config.test.json');
     
@@ -58,6 +58,17 @@ describe('.env reading test', () => {
         
         // Act
         let actual = config.isReactionToUserMessagesEnabled;
+        
+        // Assert
+        expect(actual).toBe(expected);
+    });
+    
+    it('can read config.json MongodbURI', () => {
+        // Arrange
+        let expected = "[YOUR_MONGODB_URI_HERE]";
+        
+        // Act
+        let actual = config.MongodbURI;
         
         // Assert
         expect(actual).toBe(expected);

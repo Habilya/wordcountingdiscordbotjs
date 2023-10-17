@@ -3,5 +3,6 @@
     "GuildId": "[YOUR_DISCORD_SERVER_ID_HERE]",
     "ClientId": "[YOUR_BOT_ID_HERE]",
     "BotActivityStatusName": "[YOUR_BOT_STATUS_ACTIVITY_NAME]",
-    "isReactionToUserMessagesEnabled": true
+    "isReactionToUserMessagesEnabled": true,
+    "MongodbURI": "[YOUR_MONGODB_URI_HERE]"
 }
