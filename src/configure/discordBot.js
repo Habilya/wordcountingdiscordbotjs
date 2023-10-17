@@ -4,6 +4,7 @@ let { Client, IntentsBitField } = require("discord.js");
 
 let client;
 let isValid;
+let messageReactions;
 
 
 exports.validateConfig = function() {
@@ -27,6 +28,13 @@ exports.initDiscordBotClient = function() {
 // Logs in bot in discord
 exports.logInBot = function() {
     client.login(config.Token);
+};
+
+// Populates the messageReactions from DB
+exports.populateMessageReactions = function() {
+    if (config.isReactionToUserMessagesEnabled) {
+        
+    }
 };
 
 // Accessors
@@ -63,4 +71,14 @@ exports.getIsValid = function() {
 
 exports.setIsValid = function(value) {
     isValid = value;
+};
+
+
+
+exports.getMessageReactions = function() {
+    return messageReactions;
+};
+
+exports.setMessageReactions = function(value) {
+    messageReactions = value;
 };

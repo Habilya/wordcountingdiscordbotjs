@@ -14,11 +14,20 @@ describe('01parsePatternFromMessageAndReact.js tests', () => {
             tag: "[Discord_Tag]",
             setActivity: jest.fn()
         };
+        
         discordBot.setLogger({
             info: jest.fn(),
             error: jest.fn(),
             warning: jest.fn()
         });
+        
+        discordBot.setMessageReactions([
+            {
+                messagePattern: "(?:г[аоу]нк)|(?:g[aou]nk)",
+                messagePatternFlags: "i",
+                reactionEmojiId: "<:heheboyyy:1038851949363200020>"
+            }
+        ]);
     });
     
     
