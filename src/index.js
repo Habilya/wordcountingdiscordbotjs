@@ -12,5 +12,3 @@ if (!discordBot.getIsValid()) {
 discordBot.initDiscordBotClient();
 
 eventHandler(discordBot);
-
-discordBot.logInBot();
