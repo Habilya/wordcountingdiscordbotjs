@@ -9,6 +9,7 @@ let messageReactions;
 
 exports.validateConfig = function() {
     if (true) {
+        // TODO Add config validations logic here
         isValid = true;
     }
 };
@@ -36,6 +37,7 @@ exports.populateMessageReactions = function() {
         
     }
 };
+
 
 // Accessors
 exports.getClient = function() {

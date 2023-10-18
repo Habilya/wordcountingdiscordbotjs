@@ -3,17 +3,16 @@ module.exports = async (discordBot, message) => {
         
         if (!isValid()) return;
         
-        // TODO: add /regex-reaction-add command to add regex - emojii to a list
-        // TODO: add /regex-reaction-list to list all the regexes
-        // TODO: add /regex-reaction-delete to delete a regex from the list
-        
-        // TODO: keep statistics count per user
-        
         for (const messageReaction of discordBot.getMessageReactions()) {
             var regEx = new RegExp(messageReaction.messagePattern, messageReaction.messagePatternFlags);
         
             if (regEx.test(message.content)) {
                 message.react(messageReaction.reactionEmojiId);
+                
+                // TODO : log in the DB the user id and reaction to what pattern
+                
+                // React only once per message, even if it contains multiple "matches"
+                return;
             }
         }
         

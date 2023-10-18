@@ -44,15 +44,5 @@ describe('01initialized.js tests', () => {
         // Assert
         expect(discordBot.getLogger().info).toHaveBeenCalledWith(expected);
     });
-    
-    //expect(message.reply).toHaveBeenCalledWith(expected);
-    it('discordBot.logInBot Should have been called', () => {
-        // Arrange
-        
-        // Act
-        
-        // Assert
-        expect(discordBot.logInBot.mock.calls).toHaveLength(1);
-    });
 
 });

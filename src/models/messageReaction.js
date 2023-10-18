@@ -1,6 +1,14 @@
 const { Schema, model } = require('mongoose');
 
 const messageReactionSchema = new Schema({
+  messageReactionId: {
+    type: Number,
+    required: true,
+  },
+  messageReactionNickName: {
+    type: String,
+    required: true,
+  },
   messagePattern: {
     type: String,
     required: true,
