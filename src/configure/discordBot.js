@@ -50,7 +50,7 @@ exports.populateMessageReactions = async function() {
 };
 
 // Log a user message reaction in the database
-exports.logUserMessageReaction = async function(userId, messageReactionNickName) {
+exports.logUserMessageReaction = function(userId, messageReactionNickName) {
     
     const newUserMessageReaction = new UserMessageReaction({
         messageReactionNickName: messageReactionNickName,
@@ -58,8 +58,8 @@ exports.logUserMessageReaction = async function(userId, messageReactionNickName)
         reactionDate: Date.now(),
     });
     
-    await newUserMessageReaction.save().catch((error) => {
-        console.log(`Error saving new NewUserMessageReaction ${error}`);
+    newUserMessageReaction.save().catch((error) => {
+        logger.error(`Error saving new NewUserMessageReaction ${error}\n${error.stack}`);
         return;
     });
 };
