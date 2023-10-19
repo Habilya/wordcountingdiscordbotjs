@@ -1,10 +1,6 @@
 const { Schema, model } = require('mongoose');
 
 const messageReactionSchema = new Schema({
-  messageReactionId: {
-    type: Number,
-    required: true,
-  },
   messageReactionNickName: {
     type: String,
     required: true,
@@ -21,6 +17,9 @@ const messageReactionSchema = new Schema({
     type: String,
     required: true,
   },
+},
+{ 
+  collection: 'MessageReactions'
 });
 
 module.exports = model('MessageReaction', messageReactionSchema);

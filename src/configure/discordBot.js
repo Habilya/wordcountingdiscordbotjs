@@ -1,6 +1,10 @@
+const dbLayer = require('../datalayer/dbLayer');
+const MessageReaction = require("../models/messageReaction");
+
 let config = require('../../conf/config.json');
 let logger = require('../logger/logger');
 let { Client, IntentsBitField } = require("discord.js");
+
 
 let client;
 let isValid;
@@ -31,10 +35,16 @@ exports.logInBot = function() {
     client.login(config.Token);
 };
 
+// Connect to the database
+exports.dbConnect = async function() {
+    await dbLayer(this);
+};
+
 // Populates the messageReactions from DB
-exports.populateMessageReactions = function() {
+exports.populateMessageReactions = async function() {
     if (config.isReactionToUserMessagesEnabled) {
-        
+        const messageReactions = await MessageReaction.find();
+        this.setMessageReactions(messageReactions);
     }
 };
 

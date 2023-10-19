@@ -1,17 +1,17 @@
-const dbLayer = require('../../datalayer/dbLayer');
-
-module.exports = (discordBot) => {
+module.exports = async (discordBot) => {
     try {
         discordBot.getLogger().info(`Logged in as ${discordBot.getClient().user.tag}!`);
-    
-        // Connect to the database
-        dbLayer(discordBot);
         
-        // TODO : Get the message reactions from the database into local array
-    
         discordBot.getClient().user.setActivity({
             name: discordBot.getConfig().BotActivityStatusName
         });
+    
+        // Connect to the database
+        await discordBot.dbConnect();
+        
+        // Populates the messageReactions from DB
+        await discordBot.populateMessageReactions();
+        
         
     } catch (error) {
         discordBot.getLogger().error(`Unhandled exception while initializing bot: ${error}\n${error.stack}`);
