@@ -9,7 +9,7 @@
   },
   "jest": {
     "collectCoverageFrom": [
-      "test/**/*.{js, jsx, ts, tsx }"
+      "test/**/*.{ js, jsx, ts, tsx }"
     ],
     "testPathIgnorePatterns": [
       ".c9/*"
@@ -20,6 +20,7 @@
   "dependencies": {
     "discord.js": "^14.13.0",
     "jest": "^29.7.0",
+    "mongoose": "^7.6.2",
     "winston": "^3.11.0",
     "winston-daily-rotate-file": "^4.7.1"
   }

@@ -1,13 +1,20 @@
+const dbLayer = require('../datalayer/dbLayer');
+const MessageReaction = require("../models/messageReaction");
+const UserMessageReaction = require("../models/userMessageReaction");
+
 let config = require('../../conf/config.json');
 let logger = require('../logger/logger');
 let { Client, IntentsBitField } = require("discord.js");
 
+
 let client;
 let isValid;
+let messageReactions;
 
 
 exports.validateConfig = function() {
     if (true) {
+        // TODO Add config validations logic here
         isValid = true;
     }
 };
@@ -28,6 +35,35 @@ exports.initDiscordBotClient = function() {
 exports.logInBot = function() {
     client.login(config.Token);
 };
+
+// Connect to the database
+exports.dbConnect = async function() {
+    await dbLayer(this);
+};
+
+// Populates the messageReactions from DB
+exports.populateMessageReactions = async function() {
+    if (config.isReactionToUserMessagesEnabled) {
+        const messageReactions = await MessageReaction.find();
+        this.setMessageReactions(messageReactions);
+    }
+};
+
+// Log a user message reaction in the database
+exports.logUserMessageReaction = async function(userId, messageReactionNickName) {
+    
+    const newUserMessageReaction = new UserMessageReaction({
+        messageReactionNickName: messageReactionNickName,
+        userId: userId,
+        reactionDate: Date.now(),
+    });
+    
+    await newUserMessageReaction.save().catch((error) => {
+        console.log(`Error saving new NewUserMessageReaction ${error}`);
+        return;
+    });
+};
+
 
 // Accessors
 exports.getClient = function() {
@@ -63,4 +99,14 @@ exports.getIsValid = function() {
 
 exports.setIsValid = function(value) {
     isValid = value;
+};
+
+
+
+exports.getMessageReactions = function() {
+    return messageReactions;
+};
+
+exports.setMessageReactions = function(value) {
+    messageReactions = value;
 };

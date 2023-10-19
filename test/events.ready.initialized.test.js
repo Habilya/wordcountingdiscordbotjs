@@ -17,6 +17,10 @@ describe('01initialized.js tests', () => {
         error: jest.fn(),
         warning: jest.fn()
     });
+    discordBot.logInBot = jest.fn();
+    discordBot.dbConnect = jest.fn();
+    discordBot.populateMessageReactions = jest.fn();
+    
     initializedEvent(discordBot);
     
     
@@ -32,7 +36,7 @@ describe('01initialized.js tests', () => {
         expect(discordBot.getClient().user.setActivity).toHaveBeenCalledWith(expected);
     });
     
-    //discordBot.getLogger()
+    
     it('discordBot.logger.info Should have been called to log info', () => {
         // Arrange
         const expected = "Logged in as [Discord_Tag]!";
@@ -42,5 +46,26 @@ describe('01initialized.js tests', () => {
         // Assert
         expect(discordBot.getLogger().info).toHaveBeenCalledWith(expected);
     });
+    
+    
+    it('discordBot.dbConnect() Should have been called once', () => {
+        // Arrange
+        
+        // Act
+        
+        // Assert
+        expect(discordBot.dbConnect.mock.calls).toHaveLength(1);
+    });
+    
+    
+    it('discordBot.populateMessageReactions() Should have been called once', () => {
+        // Arrange
+        
+        // Act
+        
+        // Assert
+        expect(discordBot.populateMessageReactions.mock.calls).toHaveLength(1);
+    });
+    
 
 });
