@@ -23,11 +23,14 @@ describe('01parsePatternFromMessageAndReact.js tests', () => {
         
         discordBot.setMessageReactions([
             {
+                messageReactionNickName: "testGanks",
                 messagePattern: "(?:г[аоу]нк)|(?:g[aou]nk)",
                 messagePatternFlags: "i",
                 reactionEmojiId: "<:heheboyyy:1038851949363200020>"
             }
         ]);
+        
+        discordBot.logUserMessageReaction = jest.fn();
         
         discordBot.getConfig().isReactionToUserMessagesEnabled = true;
     });
@@ -245,5 +248,31 @@ describe('01parsePatternFromMessageAndReact.js tests', () => {
         expect(message.react.mock.calls).toHaveLength(1);
         expect(message.react).toHaveBeenCalledWith(expected);
     });
+    
+    
+    it('matching message should be logged in DataBase', () => {
+        // Arrange
+        let message = {
+            content: "test gankers are bad",
+            author: {
+                id: 1111,
+                bot: false,
+                system: false
+            },
+            inGuild: jest.fn().mockReturnValue(true),
+            react: jest.fn()
+        };
+        
+        // message.author.id
+        
+        // Act
+        parsePatternFromMessageAndReact(discordBot, message);
+        
+        // Assert
+        expect(message.react.mock.calls).toHaveLength(1);
+        expect(discordBot.logUserMessageReaction.mock.calls).toHaveLength(1);
+        expect(discordBot.logUserMessageReaction).toHaveBeenCalledWith(1111, "testGanks");
+    });
+    
     
 });

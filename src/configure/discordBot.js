@@ -1,5 +1,6 @@
 const dbLayer = require('../datalayer/dbLayer');
 const MessageReaction = require("../models/messageReaction");
+const UserMessageReaction = require("../models/userMessageReaction");
 
 let config = require('../../conf/config.json');
 let logger = require('../logger/logger');
@@ -46,6 +47,21 @@ exports.populateMessageReactions = async function() {
         const messageReactions = await MessageReaction.find();
         this.setMessageReactions(messageReactions);
     }
+};
+
+// Log a user message reaction in the database
+exports.logUserMessageReaction = async function(userId, messageReactionNickName) {
+    
+    const newUserMessageReaction = new UserMessageReaction({
+        messageReactionNickName: messageReactionNickName,
+        userId: userId,
+        reactionDate: Date.now(),
+    });
+    
+    await newUserMessageReaction.save().catch((error) => {
+        console.log(`Error saving new NewUserMessageReaction ${error}`);
+        return;
+    });
 };
 
 

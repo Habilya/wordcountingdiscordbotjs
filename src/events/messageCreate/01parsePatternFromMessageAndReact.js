@@ -9,7 +9,7 @@ module.exports = async (discordBot, message) => {
             if (regEx.test(message.content)) {
                 message.react(messageReaction.reactionEmojiId);
                 
-                // TODO : log in the DB the user id and reaction to what pattern
+                discordBot.logUserMessageReaction(message.author.id, messageReaction.messageReactionNickName);
                 
                 // React only once per message, even if it contains multiple "matches"
                 return;
