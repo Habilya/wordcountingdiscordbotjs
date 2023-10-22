@@ -1,4 +1,4 @@
-module.exports = async (discordBot, message) => {
+module.exports = (discordBot, message) => {
     try {
         
         if (!isValid()) return;

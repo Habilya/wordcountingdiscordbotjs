@@ -8,11 +8,6 @@ describe('eventHandler.js tests', () => {
     
     eventHandler(discordBot);
     
-    beforeEach(() => {
-        // Use to clear the results structures before each test
-        //jest.clearAllMocks();
-    });
-    
     
     it('_eventsCount Should Match', () => {
         // Arrange
