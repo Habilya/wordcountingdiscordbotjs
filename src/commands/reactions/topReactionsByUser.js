@@ -3,6 +3,7 @@ const dbLayer = require('../../datalayer/dbLayer');
 const nodeHtmlToImage = require('node-html-to-image')
 const fs = require("fs");
 const cooldowns = new Set();
+const COOLDOWN_TIME_MINUTES = 2;
 
 module.exports = {
     name: "topreactionsbyuser",
@@ -24,6 +25,14 @@ module.exports = {
             
             const reactionNickName = interaction.options.get('reaction-name').value;
             
+            if (reactionNickName === null || typeof reactionNickName !== "string" || typeof reactionNickName === "string" && reactionNickName.length === 0) {
+                interaction.reply({
+                    content: `Uhm, reaction-name:${reactionNickName} invalid parameter.`,
+                    ephemeral: true
+                });
+                return;
+            }
+            
             if (cooldowns.has(reactionNickName)) {
                 interaction.reply({
                     content: `Whoa, reaction: ${reactionNickName} was recently used, there is a cooldown.`,
@@ -32,22 +41,19 @@ module.exports = {
                 return;
             }
             
-            interaction.reply({
-                content: 'ok! Wait, I will send the info in a new message.',
-                ephemeral: true
-            });
-            
+            await interaction.deferReply();
+
             cooldowns.add(reactionNickName);
             setTimeout(() => {
                 cooldowns.delete(reactionNickName);
-            }, 1 * 60 * 1000);
+            }, COOLDOWN_TIME_MINUTES * 60 * 1000);
             
             const ladderboard_li_template = fs.readFileSync('./assets/templates/ladderboard_li_template.html');
             
             let queryResult = await dbLayer.getTopUsersReactionsByReactionName(reactionNickName, 5);
             
             if (queryResult.length === 0) {
-                interaction.channel.send({
+                await interaction.editReply({
                     content: `Couldn't find any results for the reaction NickName: ${reactionNickName}`,
                 });
                 return;
@@ -86,7 +92,7 @@ module.exports = {
             
             // !!ATTENTION!! you cannot use files attachmements and a text message 
             // (only the text message will be visible!! (attachments will be just ignored))
-            interaction.channel.send({
+            await interaction.editReply({
                 files: [attachLeaderBoardAsImmage]
             });
         } catch (error) {
