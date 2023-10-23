@@ -2,6 +2,7 @@ const { ApplicationCommandOptionType, PermissionFlagsBits, AttachmentBuilder } =
 const dbLayer = require('../../datalayer/dbLayer');
 const nodeHtmlToImage = require('node-html-to-image')
 const fs = require("fs");
+const cooldowns = new Set();
 
 module.exports = {
     name: "topreactionsbyuser",
@@ -20,15 +21,37 @@ module.exports = {
 
     callback: async (discordBot, interaction) => {
         try {
+            
+            const reactionNickName = interaction.options.get('reaction-name').value;
+            
+            if (cooldowns.has(reactionNickName)) {
+                interaction.reply({
+                    content: `Whoa, reaction: ${reactionNickName} was recently used, there is a cooldown.`,
+                    ephemeral: true
+                });
+                return;
+            }
+            
             interaction.reply({
                 content: 'ok! Wait, I will send the info in a new message.',
                 ephemeral: true
             });
             
+            cooldowns.add(reactionNickName);
+            setTimeout(() => {
+                cooldowns.delete(reactionNickName);
+            }, 1 * 60 * 1000);
+            
             const ladderboard_li_template = fs.readFileSync('./assets/templates/ladderboard_li_template.html');
             
-            let queryResult = await dbLayer.getTopUsersReactionsByReactionName("gank", 5);
+            let queryResult = await dbLayer.getTopUsersReactionsByReactionName(reactionNickName, 5);
             
+            if (queryResult.length === 0) {
+                interaction.channel.send({
+                    content: `Couldn't find any results for the reaction NickName: ${reactionNickName}`,
+                });
+                return;
+            }
             
             let ladderboard_li = '';
             for (const leaderBoardLine of queryResult) {
@@ -41,13 +64,11 @@ module.exports = {
                     .replace('{{display_name}}', `${targetUserObj.nickname} (${targetUserObj.user.tag})`)
                     .replace('{{display_score}}', leaderBoardLine.messageReactionCount);
                 }
-
-                
             }
             
             const ladderboard_template = fs.readFileSync('./assets/templates/ladderboard_template.html')
                 .toString()
-                .replace('{{pattern_nickname}}', 'gank')
+                .replace('{{pattern_nickname}}', reactionNickName)
                 .replace('{{leaderboard}}', ladderboard_li);
             
             const image = await nodeHtmlToImage({
