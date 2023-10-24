@@ -1,5 +1,5 @@
 const { ApplicationCommandOptionType, PermissionFlagsBits } = require("discord.js");
-const https = require('https');
+const dcohWatchAPIOverview = require('../../utils/dcohWatchAPIOverview');
 const { AsciiTable3, AlignmentEnum } = require('ascii-table3');
 
 module.exports = {
@@ -35,39 +35,25 @@ module.exports = {
 
             const titanName = interaction.options.get('titan-name').value;
 
-
             // have to use deferred reply, because the processing time is long...
             await interaction.deferReply();
+            
+            dcohWatchAPIOverview(function (overview) {
+                const filteredSystems = overview.systems.filter(x =>
+                    x.maelstrom.name == titanName &&
+                    (x.barnacleMatrixInSystem || x.thargoidSpireSiteInSystem));
 
-            https.get(`https://dcoh.watch/api/v1/Overwatch/OverviewV2`, resp => {
-                let data = "";
+                var table = new AsciiTable3('Thargoid matrices')
+                    .setHeading('System Name', 'Matrix', 'Spires', 'Titan')
+                    .setAlign(4, AlignmentEnum.CENTER)
+                    .setStyle('unicode-double');
 
-                // A chunk of data has been recieved.
-                resp.on("data", chunk => {
-                    data += chunk;
-                });
+                for(const system of filteredSystems) {
+                    table.addRow(system.name, system.barnacleMatrixInSystem, system.thargoidSpireSiteInSystem, system.maelstrom.name);
+                }
 
-                // The whole response has been received. Printout the result.
-                resp.on("end", () => {
-
-                    const overview = JSON.parse(data);
-
-                    const filteredSystems = overview.systems.filter(x =>
-                        x.maelstrom.name == titanName &&
-                        (x.barnacleMatrixInSystem || x.thargoidSpireSiteInSystem));
-
-                    var table = new AsciiTable3('Thargoid matrices')
-                        .setHeading('System Name', 'Matrix', 'Spires', 'Titan')
-                        .setAlign(4, AlignmentEnum.CENTER)
-                        .setStyle('unicode-double');
-
-                    for(const system of filteredSystems) {
-                        table.addRow(system.name, system.barnacleMatrixInSystem, system.thargoidSpireSiteInSystem, system.maelstrom.name);
-                    }
-
-                    interaction.editReply({
-                        content: '```' + table.toString() + '```',
-                    });
+                interaction.editReply({
+                    content: '```' + table.toString() + '```',
                 });
             });
         } catch(error) {
