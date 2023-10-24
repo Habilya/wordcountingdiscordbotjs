@@ -1,4 +1,5 @@
 const { ApplicationCommandOptionType, PermissionFlagsBits } = require("discord.js");
+var packagejson = require('../../../package.json');
 
 module.exports = {
     name: "ping",
@@ -9,7 +10,7 @@ module.exports = {
 
     callback: (discordBot, interaction) => {
         interaction.reply({
-            content: 'pong',
+            content: `v${packagejson.version}`,
             ephemeral: true
         });
     },
