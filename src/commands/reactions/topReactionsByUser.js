@@ -25,45 +25,47 @@ module.exports = {
             
             const reactionNickName = interaction.options.get('reaction-name').value;
             
-            if (reactionNickName === null || typeof reactionNickName !== "string" || typeof reactionNickName === "string" && reactionNickName.length === 0) {
-                interaction.reply({
-                    content: `Uhm, reaction-name:${reactionNickName} invalid parameter.`,
-                    ephemeral: true
-                });
-                return;
-            }
-            
             if (cooldowns.has(reactionNickName)) {
                 interaction.reply({
-                    content: `Whoa, reaction: ${reactionNickName} was recently used, there is a cooldown.`,
+                    content: `Whoa, reaction: ${reactionNickName} was recently used, there is a cooldown of (${COOLDOWN_TIME_MINUTES}) minute(s).`,
                     ephemeral: true
                 });
                 return;
             }
             
+            // have to use deferred reply, because the processing time is long...
             await interaction.deferReply();
-
+            
+            // initiate a cooldown for that command and that reaction nickname
             cooldowns.add(reactionNickName);
             setTimeout(() => {
                 cooldowns.delete(reactionNickName);
             }, COOLDOWN_TIME_MINUTES * 60 * 1000);
             
-            const ladderboard_li_template = fs.readFileSync('./assets/templates/ladderboard_li_template.html');
+            // db call to get the query results
+            let topUsersReactionsByReactionName = await dbLayer.getTopUsersReactionsByReactionName(reactionNickName, 5);
             
-            let queryResult = await dbLayer.getTopUsersReactionsByReactionName(reactionNickName, 5);
-            
-            if (queryResult.length === 0) {
+            if (topUsersReactionsByReactionName.length === 0) {
                 await interaction.editReply({
                     content: `Couldn't find any results for the reaction NickName: ${reactionNickName}`,
                 });
                 return;
             }
             
+            const ladderboard_li_template = fs.readFileSync('./assets/templates/ladderboard_li_template.html');
             let ladderboard_li = '';
-            for (const leaderBoardLine of queryResult) {
-                const targetUserObj = await interaction.guild.members.fetch(leaderBoardLine._id);
+            for (const leaderBoardLine of topUsersReactionsByReactionName) {
+                // find user within the server, to retrieve their nickname, avatar, etc.
+                let targetUserObj;
                 
-                if (targetUserObj.user) {
+                try {
+                    targetUserObj = await interaction.guild.members.fetch(leaderBoardLine._id);
+                } catch (error) {
+                    // most likely user left the server...
+                    continue;
+                }
+                
+                if (targetUserObj && targetUserObj.user) {
                     ladderboard_li += ladderboard_li_template
                     .toString()
                     .replace('{{avatar_url}}', targetUserObj.user.displayAvatarURL({ size: 256 }))
@@ -88,7 +90,7 @@ module.exports = {
                 encoding: 'buffer',
             });
             
-            let attachLeaderBoardAsImmage = new AttachmentBuilder(image).setName('test.jpg');
+            let attachLeaderBoardAsImmage = new AttachmentBuilder(image).setName('leaderboard.jpg');
             
             // !!ATTENTION!! you cannot use files attachmements and a text message 
             // (only the text message will be visible!! (attachments will be just ignored))
