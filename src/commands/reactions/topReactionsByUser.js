@@ -7,7 +7,7 @@ const COOLDOWN_TIME_MINUTES = 2;
 
 module.exports = {
     name: "topreactionsbyuser",
-    description: "displays top users by count of reactions, available to all users.",
+    description: "displays top users by count of reactions.",
     isDeleted: false,
     options: [
         {
@@ -18,7 +18,7 @@ module.exports = {
         }
     ],
 
-    permissionsRequired: [],
+    permissionsRequired: [PermissionFlagsBits.ViewChannel],
 
     callback: async(discordBot, interaction) => {
         try {
