@@ -66,11 +66,14 @@ module.exports = {
                 }
 
                 if(targetUserObj && targetUserObj.user) {
+                    
+                    // Users can have multiple ways to configure their NickName
+                    const displayName = `${targetUserObj.nickname ?? targetUserObj.user.globalName ?? targetUserObj.user.username}`;
 
                     ladderboard_li += ladderboard_li_template
                         .toString()
                         .replace('{{avatar_url}}', targetUserObj.user.displayAvatarURL({ size: 256 }))
-                        .replace('{{display_name}}', `${targetUserObj.nickname ?? targetUserObj.user.globalName} (${targetUserObj.user.tag})`)
+                        .replace('{{display_name}}', `${displayName} (${targetUserObj.user.tag})`)
                         .replace('{{display_score}}', leaderBoardLine.messageReactionCount);
                 }
             }
