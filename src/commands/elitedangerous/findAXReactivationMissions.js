@@ -35,7 +35,9 @@ module.exports = {
                         const systemsData = await apiGetInaraMilitarySettlements(system.name);
                         const filteredMatchingSettlements = systemsData.filter(x => parseFloat(x.Dist) < 20);
                         militarySettlementsCount = filteredMatchingSettlements.length
-                    } catch(e) {}
+                    } catch(error) {
+                        discordBot.getLogger().error(`Unhandled exception while getting nb military settleemnts: ${error}\n${error.stack}`);
+                    }
 
                     table.addRow(system.name, system.thargoidLevel.name, system.maelstrom.name, militarySettlementsCount);
                 }
