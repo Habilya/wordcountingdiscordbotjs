@@ -1,5 +1,5 @@
 const { ApplicationCommandOptionType, PermissionFlagsBits } = require("discord.js");
-const dcohWatchAPIOverview = require('../../utils/dcohWatchAPIOverview');
+const apiGetDcohWatchAPIOverview = require('../../utils/apiGetDcohWatchAPIOverview');
 const { AsciiTable3, AlignmentEnum } = require('ascii-table3');
 
 module.exports = {
@@ -38,7 +38,7 @@ module.exports = {
             // have to use deferred reply, because the processing time is long...
             await interaction.deferReply();
             
-            dcohWatchAPIOverview(function (overview) {
+            apiGetDcohWatchAPIOverview(function (overview) {
                 const filteredSystems = overview.systems.filter(x =>
                     x.maelstrom.name == titanName &&
                     (x.barnacleMatrixInSystem || x.thargoidSpireSiteInSystem));

@@ -1,5 +1,6 @@
 const { ApplicationCommandOptionType, PermissionFlagsBits } = require("discord.js");
-const dcohWatchAPIOverview = require('../../utils/dcohWatchAPIOverview');
+const apiGetDcohWatchAPIOverview = require('../../utils/apiGetDcohWatchAPIOverview');
+const apiGetInaraMilitarySettlements = require('../../utils/apiGetInaraMilitarySettlements');
 const { AsciiTable3, AlignmentEnum } = require('ascii-table3');
 
 module.exports = {
@@ -15,19 +16,28 @@ module.exports = {
             // have to use deferred reply, because the processing time is long...
             await interaction.deferReply();
 
-            dcohWatchAPIOverview(function (overview) {
+            apiGetDcohWatchAPIOverview(async function (overview) {
                 const filteredSystems = overview.systems.filter(x =>
                     x.features.includes("ThargoidControlledReactivationMissions") &&
                     (x.thargoidLevel.level == 20 || x.thargoidLevel.level == 30)
                 );
 
                 var table = new AsciiTable3('AX Reactivation missions')
-                    .setHeading('System Name', 'Thargoid State', 'Titan')
-                    .setAlign(3, AlignmentEnum.CENTER)
+                    .setHeading('System Name', 'Thargoid State', 'Titan', 'M. settlements')
+                    .setAlign(4, AlignmentEnum.CENTER)
                     .setStyle('unicode-double');
 
                 for(const system of filteredSystems) {
-                    table.addRow(system.name, system.thargoidLevel.name, system.maelstrom.name);
+
+                    let militarySettlementsCount = 0;
+                    
+                    try {
+                        const systemsData = await apiGetInaraMilitarySettlements(system.name);
+                        const filteredMatchingSettlements = systemsData.filter(x => parseFloat(x.Dist) < 20);
+                        militarySettlementsCount = filteredMatchingSettlements.length
+                    } catch(e) {}
+
+                    table.addRow(system.name, system.thargoidLevel.name, system.maelstrom.name, militarySettlementsCount);
                 }
 
                 interaction.editReply({
