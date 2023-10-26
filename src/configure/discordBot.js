@@ -1,10 +1,8 @@
 const dbLayer = require('../datalayer/dbLayer');
-const MessageReaction = require("../models/messageReaction");
-const UserMessageReaction = require("../models/userMessageReaction");
 
 let config = require('../../conf/config.json');
 let logger = require('../logger/logger');
-let { Client, IntentsBitField } = require("discord.js");
+let { Client, GatewayIntentBits } = require("discord.js");
 
 
 let client;
@@ -23,10 +21,10 @@ exports.validateConfig = function() {
 exports.initDiscordBotClient = function() {
     client = new Client({
         intents: [
-            IntentsBitField.Flags.Guilds,
-            IntentsBitField.Flags.GuildMembers,
-            IntentsBitField.Flags.GuildMessages,
-            IntentsBitField.Flags.MessageContent,
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMembers,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.MessageContent,
         ],
     });
 };
@@ -38,30 +36,24 @@ exports.logInBot = function() {
 
 // Connect to the database
 exports.dbConnect = async function() {
-    await dbLayer(this);
+    await dbLayer.initDBConnection(this);
 };
 
 // Populates the messageReactions from DB
 exports.populateMessageReactions = async function() {
     if (config.isReactionToUserMessagesEnabled) {
-        const messageReactions = await MessageReaction.find();
-        this.setMessageReactions(messageReactions);
+        this.setMessageReactions(await dbLayer.getAllMessageReactions());
     }
 };
 
 // Log a user message reaction in the database
-exports.logUserMessageReaction = async function(userId, messageReactionNickName) {
-    
-    const newUserMessageReaction = new UserMessageReaction({
-        messageReactionNickName: messageReactionNickName,
-        userId: userId,
-        reactionDate: Date.now(),
-    });
-    
-    await newUserMessageReaction.save().catch((error) => {
-        console.log(`Error saving new NewUserMessageReaction ${error}`);
+exports.logUserMessageReaction = function(userId, messageReactionNickName) {
+    try {
+        dbLayer.logUserMessageReaction(userId, messageReactionNickName);
+    } catch (error) {
+        logger.error(`Error saving new NewUserMessageReaction ${error}\n${error.stack}`);
         return;
-    });
+    }
 };
 
 

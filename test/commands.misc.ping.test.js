@@ -14,7 +14,7 @@ describe('Command ping.js tests', () => {
       };
       
       const expected = {
-          content: 'pong',
+          content: 'v1.0.0',
           ephemeral: true
       };
       
