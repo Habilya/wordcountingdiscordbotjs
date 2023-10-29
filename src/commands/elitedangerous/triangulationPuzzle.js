@@ -66,6 +66,8 @@ module.exports = {
 
     callback: async(discordBot, interaction) => {
         try {
+            // have to use deferred reply, because the processing time is long...
+            await interaction.deferReply();
 
             const SystemName1 = interaction.options.get('system-name1').value;
             const minRadius1 = interaction.options.get('min-radius1').value;
@@ -78,9 +80,6 @@ module.exports = {
             const SystemName3 = interaction.options.get('system-name3').value;
             const minRadius3 = interaction.options.get('min-radius3').value;
             const maxRadius3 = interaction.options.get('max-radius3').value;
-
-            // have to use deferred reply, because the processing time is long...
-            await interaction.deferReply();
 
             const firstSystemRadiusList = filterSystemsArray(await apiGetsphereSystems(SystemName1, maxRadius1, minRadius1));
             const secondSystemRadiusList = filterSystemsArray(await apiGetsphereSystems(SystemName2, maxRadius2, minRadius2));
