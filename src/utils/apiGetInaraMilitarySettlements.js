@@ -2,29 +2,6 @@ const axios = require('axios');
 const jsdom = require('jsdom');
 const { JSDOM } = jsdom;
 
-/*
-RETURN example :
-[
-    {
-        Station: 'Burn Landing Abandoned',
-        StarSystem: 'HIP 38235',
-        Economy: 'Military',
-        Government: 'Corporate',
-        Allegiance: 'Independent',
-        StationDistance: '265 Ls',
-        Dist: '194.32'
-    },
-    {
-        Station: 'Sasaki Military Expedition Abandoned',
-        StarSystem: 'HIP 38235',
-        Economy: 'Military',
-        Government: 'Corporate',
-        Allegiance: 'Independent',
-        StationDistance: '266 Ls',
-        Dist: '194.32'
-    }
-]
-*/
 
 module.exports = async(systemName) => {
 
@@ -54,8 +31,11 @@ function getJSON(table) {
         for(var j = 0; j < thead.length; j++) {
             const key = `${thead[j].toString()}`;
             row[key] = tRow.cells[j].textContent
-                .replace("︎︎", "")
-                .replace(" Ly︎", "");
+                .replaceAll("︎︎", "")
+                .replaceAll(" Ly︎", "")
+                .replaceAll(" Ly", "");
+            // TODO: Probably should think of a more elegant way of filtering weird Emojiis and html icons
+
         }
         rows.push(row);
     }
