@@ -11,14 +11,12 @@ module.exports = async(systemName) => {
 
     const dom = new JSDOM(response.data);
 
-    const parsedJSON = getJSON(dom.window.document.querySelector('table.tablesortercollapsed'));
-
-    return parsedJSON;
+    return getJSON(dom.window.document.querySelector('table.tablesortercollapsed'));
 };
 
 
 function getJSON(table) {
-    // thead
+    // thead (Header adjustment so that fields of JSON objects would appear uniformily)
     const thead = Array.from(table.tHead.rows[0].children).map((el) =>
         el.textContent
         .replace("St dist", "StationDistance")
@@ -26,6 +24,7 @@ function getJSON(table) {
 
     let rows = [];
 
+    // creating an array of JSON objects based on HTML rows
     for(const tRow of table.tBodies[0].rows) {
         var row = {};
         for(var j = 0; j < thead.length; j++) {
