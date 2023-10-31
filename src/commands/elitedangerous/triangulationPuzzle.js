@@ -1,5 +1,6 @@
 const { ApplicationCommandOptionType, PermissionFlagsBits } = require("discord.js");
 const apiGetsphereSystems = require('../../utils/apiGetsphereSystems');
+const intersectManyOneDimensionalArrays = require('../../utils/intersectManyOneDimensionalArrays');
 
 module.exports = {
     name: "triangulation-puzzle",
@@ -86,7 +87,7 @@ module.exports = {
             const thirdSystemRadiusList = filterSystemsArray(await apiGetsphereSystems(SystemName3, maxRadius3, minRadius3));
 
             interaction.editReply({
-                content: '```' + intersectMany(firstSystemRadiusList, secondSystemRadiusList, thirdSystemRadiusList) + '```',
+                content: '```' + intersectManyOneDimensionalArrays(firstSystemRadiusList, secondSystemRadiusList, thirdSystemRadiusList) + '```',
             });
 
         } catch(error) {
@@ -95,27 +96,10 @@ module.exports = {
     },
 };
 
+// Remove systems with 0 planets
+// Select only systemName to be put into an array
 const filterSystemsArray = (systemsArray) => {
     return systemsArray
         .filter(x => x.bodyCount > 0)
         .map(m => m.name);
-};
-
-const intersection = (arr1, arr2) => {
-    const res = [];
-    for(let i = 0; i < arr1.length; i++) {
-        if(!arr2.includes(arr1[i])) {
-            continue;
-        }
-        res.push(arr1[i]);
-    }
-    return res;
-};
-
-const intersectMany = (...arrs) => {
-    let res = arrs[0].slice();
-    for(let i = 1; i < arrs.length; i++) {
-        res = intersection(res, arrs[i]);
-    }
-    return res;
 };

@@ -4,6 +4,10 @@ const { AsciiTable3, AlignmentEnum } = require('ascii-table3');
 const apiGetDcohWatchAPIOverview = require('../../utils/apiGetDcohWatchAPIOverview');
 const apiGetInaraMilitarySettlements = require('../../utils/apiGetInaraMilitarySettlements');
 
+const THARGOID_INVASION_LEVEL_ALERT = 20;
+const THARGOID_INVASION_LEVEL_INVASION = 30;
+const RULE_LIGHT_YEARS_RADIUS_FOR_REACTIVATION_MISSIONS = 20;
+
 module.exports = {
     name: "findaxreactivationmissions",
     description: "This command will find systems that offer AX reactivation missions.",
@@ -21,7 +25,7 @@ module.exports = {
 
             const filteredSystems = overview.systems.filter(x =>
                 x.features.includes("ThargoidControlledReactivationMissions") &&
-                (x.thargoidLevel.level == 20 || x.thargoidLevel.level == 30)
+                (x.thargoidLevel.level == THARGOID_INVASION_LEVEL_ALERT || x.thargoidLevel.level == THARGOID_INVASION_LEVEL_INVASION)
             );
 
             var table = new AsciiTable3('AX Reactivation missions')
@@ -35,7 +39,7 @@ module.exports = {
 
                 try {
                     const systemsData = await apiGetInaraMilitarySettlements(system.name);
-                    const filteredMatchingSettlements = systemsData.filter(x => parseFloat(x.Dist) < 20);
+                    const filteredMatchingSettlements = systemsData.filter(x => parseFloat(x.Dist) < RULE_LIGHT_YEARS_RADIUS_FOR_REACTIVATION_MISSIONS);
                     militarySettlementsCount = filteredMatchingSettlements.length
                 } catch(error) {
                     discordBot.getLogger().error(`Unhandled exception while getting nb military settleemnts: ${error}\n${error.stack}`);
