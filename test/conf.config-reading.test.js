@@ -1,5 +1,5 @@
 
-describe('.env reading test', () => {
+describe('config.json reading test', () => {
     // Use .toEqual(); for objects by value comparison
     const config = require('../conf/config.test.json');
     
@@ -8,7 +8,7 @@ describe('.env reading test', () => {
     });
     
     
-    it('can read config.json TOKEN', () => {
+    it('can read config.json Token', () => {
         // Arrange
         let expected = "[YOUR_BOT_TOKEN_HERE]";
         
@@ -19,7 +19,7 @@ describe('.env reading test', () => {
         expect(actual).toBe(expected);
     });
     
-    it('can read config.json GUILD_ID', () => {
+    it('can read config.json GuildId', () => {
         // Arrange
         let expected = "[YOUR_DISCORD_SERVER_ID_HERE]";
         
@@ -30,7 +30,7 @@ describe('.env reading test', () => {
         expect(actual).toBe(expected);
     });
     
-    it('can read config.json CLIENT_ID', () => {
+    it('can read config.json ClientId', () => {
         // Arrange
         let expected = "[YOUR_BOT_ID_HERE]";
         
@@ -41,12 +41,34 @@ describe('.env reading test', () => {
         expect(actual).toBe(expected);
     });
     
-    it('can read config.json STATUS_ACTIVITY_NAME', () => {
+    it('can read config.json BotActivityStatusName', () => {
         // Arrange
-        let expected = "[YPUR_BOT_STATUS_ACTIVITY_NAME]";
+        let expected = "[YOUR_BOT_STATUS_ACTIVITY_NAME]";
         
         // Act
-        let actual = config.StatusActivityName;
+        let actual = config.BotActivityStatusName;
+        
+        // Assert
+        expect(actual).toBe(expected);
+    });
+    
+    it('can read config.json isReactionToUserMessagesEnabled', () => {
+        // Arrange
+        let expected = true;
+        
+        // Act
+        let actual = config.isReactionToUserMessagesEnabled;
+        
+        // Assert
+        expect(actual).toBe(expected);
+    });
+    
+    it('can read config.json MongodbURI', () => {
+        // Arrange
+        let expected = "[YOUR_MONGODB_URI_HERE]";
+        
+        // Act
+        let actual = config.MongodbURI;
         
         // Assert
         expect(actual).toBe(expected);

@@ -1,25 +1,20 @@
-
+const discordBot = require("../src/configure/discordBot");
+const eventHandler = require("../src/handlers/eventHandler");
+    
+    
 describe('eventHandler.js tests', () => {
-
-    require('dotenv').config({ path: 'conf/.test.env' });
-    const createBotClient = require("../src/utils/createBotClient");
-    const eventHandler = require("../src/handlers/eventHandler");
     
-    const client = createBotClient();
-    eventHandler(client);
+    discordBot.initDiscordBotClient();
     
-    beforeEach(() => {
-        // Use to clear the results structures before each test
-        //jest.clearAllMocks();
-    });
+    eventHandler(discordBot);
     
     
     it('_eventsCount Should Match', () => {
         // Arrange
-        let expected = 3;
+        let expected = 4;
         
         // Act
-        let actual = client._eventsCount;
+        let actual = discordBot.getClient()._eventsCount;
         
         // Assert
         expect(actual).toBe(expected);
@@ -31,11 +26,12 @@ describe('eventHandler.js tests', () => {
         let expected = {
             shardDisconnect: expect.any(Function),
             interactionCreate: expect.any(Function), // Command handler module should be initialized
-            ready: expect.any(Function) // onReady module should be initialized 
+            ready: expect.any(Function), // onReady module should be initialized
+            messageCreate: expect.any(Function) // onReady module should be initialized
         };
         
         // Act
-        let actual = client._events;
+        let actual = discordBot.getClient()._events;
         
         // Assert
         expect(actual).toEqual(expected);
