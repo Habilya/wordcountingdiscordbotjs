@@ -28,7 +28,7 @@ describe('getLocalCommands.js tests', () => {
         permissionsRequired: [],
         callback: expect.any(Function)
       },
-            {
+      {
         name: "triangulation-puzzle",
         description: "This command will find system in all 3 lists of 3 lookups with min and max L.y. radius.",
         isDeleted: false,
@@ -92,8 +92,8 @@ describe('getLocalCommands.js tests', () => {
         callback: expect.any(Function)
       },
       {
-        name: 'ping',
-        description: 'Command and permission heartbeat.',
+        name: 'help',
+        description: 'Displays help about bot.',
         isDeleted: false,
         permissionsRequired: [],
         callback: expect.any(Function)
