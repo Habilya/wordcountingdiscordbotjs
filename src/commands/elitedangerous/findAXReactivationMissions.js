@@ -28,7 +28,7 @@ module.exports = {
                 (x.thargoidLevel.level == THARGOID_INVASION_LEVEL_ALERT || x.thargoidLevel.level == THARGOID_INVASION_LEVEL_INVASION)
             );
 
-            var table = new AsciiTable3('AX Reactivation missions')
+            const table = new AsciiTable3('AX Reactivation missions')
                 .setHeading('System Name', 'Thargoid State', 'Titan', 'M. settlements')
                 .setAlign(4, AlignmentEnum.CENTER)
                 .setStyle('unicode-double');

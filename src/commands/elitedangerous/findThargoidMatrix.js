@@ -44,7 +44,7 @@ module.exports = {
                 x.maelstrom.name == titanName &&
                 (x.barnacleMatrixInSystem || x.thargoidSpireSiteInSystem));
 
-            var table = new AsciiTable3('Thargoid matrices')
+            const table = new AsciiTable3('Thargoid matrices')
                 .setHeading('System Name', 'Matrix', 'Spires', 'Titan')
                 .setAlign(4, AlignmentEnum.CENTER)
                 .setStyle('unicode-double');

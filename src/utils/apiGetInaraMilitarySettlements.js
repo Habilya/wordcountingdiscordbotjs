@@ -26,8 +26,8 @@ function getJSON(table) {
 
     // creating an array of JSON objects based on HTML rows
     for(const tRow of table.tBodies[0].rows) {
-        var row = {};
-        for(var j = 0; j < thead.length; j++) {
+        let row = {};
+        for(let j = 0; j < thead.length; j++) {
             const key = `${thead[j].toString()}`;
             row[key] = tRow.cells[j].textContent
                 .replaceAll("︎︎", "")
