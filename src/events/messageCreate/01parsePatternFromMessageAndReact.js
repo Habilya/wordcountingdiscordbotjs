@@ -4,7 +4,7 @@ module.exports = (discordBot, message) => {
         if (!isValid()) return;
         
         for (const messageReaction of discordBot.getMessageReactions()) {
-            var regEx = new RegExp(messageReaction.messagePattern, messageReaction.messagePatternFlags);
+            const regEx = new RegExp(messageReaction.messagePattern, messageReaction.messagePatternFlags);
         
             if (regEx.test(message.content)) {
                 message.react(messageReaction.reactionEmojiId);
