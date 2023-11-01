@@ -1,9 +1,10 @@
 const { ApplicationCommandOptionType, PermissionFlagsBits, AttachmentBuilder } = require("discord.js");
 const dbLayer = require('../../datalayer/dbLayer');
-const nodeHtmlToImage = require('node-html-to-image')
+const htmlToJpeg = require('../../utils/htmlToJpeg');
 const fs = require("fs");
 const cooldowns = new Set();
 const COOLDOWN_TIME_MINUTES = 2;
+
 
 module.exports = {
     name: "topreactionsbyuser",
@@ -52,47 +53,28 @@ module.exports = {
                 return;
             }
 
+            // Read the template into a variable
+            const ladderboard_template = fs.readFileSync('./assets/templates/ladderboard_template.html');
             const ladderboard_li_template = fs.readFileSync('./assets/templates/ladderboard_li_template.html');
+
             let ladderboard_li = '';
             for(const leaderBoardLine of topUsersReactionsByReactionName) {
-                // find user within the server, to retrieve their nickname, avatar, etc.
-                let targetUserObj;
-
                 try {
-                    targetUserObj = await interaction.guild.members.fetch(leaderBoardLine._id);
+                    // find user within the server, to retrieve their nickname, avatar, etc.
+                    const targetUserObj = await interaction.guild.members.fetch(leaderBoardLine._id);
+
+                    if(targetUserObj && targetUserObj.user) {
+                        ladderboard_li += GenerateLeaderBoardLine(ladderboard_li_template, targetUserObj, leaderBoardLine);
+                    }
                 } catch(error) {
                     // most likely user left the server...
                     continue;
                 }
-
-                if(targetUserObj && targetUserObj.user) {
-                    
-                    // Users can have multiple ways to configure their NickName
-                    const displayName = `${targetUserObj.nickname ?? targetUserObj.user.globalName ?? targetUserObj.user.username}`;
-
-                    ladderboard_li += ladderboard_li_template
-                        .toString()
-                        .replace('{{avatar_url}}', targetUserObj.user.displayAvatarURL({ size: 256 }))
-                        .replace('{{display_name}}', `${displayName} (${targetUserObj.user.tag})`)
-                        .replace('{{display_score}}', leaderBoardLine.messageReactionCount);
-                }
             }
 
-            const ladderboard_template = fs.readFileSync('./assets/templates/ladderboard_template.html')
-                .toString()
-                .replace('{{pattern_nickname}}', reactionNickName)
-                .replace('{{leaderboard}}', ladderboard_li);
+            const generatedLadderboard = GenerateLeaderBoard(ladderboard_template, reactionNickName, ladderboard_li);
 
-            const image = await nodeHtmlToImage({
-                html: ladderboard_template,
-                quality: 100,
-                type: 'jpeg',
-                puppeteerArgs: {
-                    args: ['--no-sandbox'],
-                    executablePath: '/usr/bin/chromium-browser',
-                },
-                encoding: 'buffer',
-            });
+            const image = await htmlToJpeg(generatedLadderboard);
 
             let attachLeaderBoardAsImmage = new AttachmentBuilder(image).setName('leaderboard.jpg');
 
@@ -105,4 +87,22 @@ module.exports = {
             discordBot.getLogger().error(`unhandled error while preparing reactions leadderboard: ${error}\n${error.stack}`);
         }
     },
+};
+
+const GenerateLeaderBoardLine = (ladderboard_li_template, targetUserObj, leaderBoardLine) => {
+    // Users can have multiple ways to configure their NickName
+    const displayName = `${targetUserObj.nickname ?? targetUserObj.user.globalName ?? targetUserObj.user.username}`;
+
+    return ladderboard_li_template
+        .toString()
+        .replace('{{avatar_url}}', targetUserObj.user.displayAvatarURL({ size: 256 }))
+        .replace('{{display_name}}', `${displayName} (${targetUserObj.user.tag})`)
+        .replace('{{display_score}}', leaderBoardLine.messageReactionCount);
+};
+
+const GenerateLeaderBoard = (ladderboard_template, reactionNickName, ladderboard_li) => {
+    return ladderboard_template
+        .toString()
+        .replace('{{pattern_nickname}}', reactionNickName)
+        .replace('{{leaderboard}}', ladderboard_li);
 };

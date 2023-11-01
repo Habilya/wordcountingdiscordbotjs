@@ -1,5 +1,4 @@
 const getLocalCommands = require('../../utils/getLocalCommands');
-const logger = require('../../logger/logger');
 
 module.exports = async (discordBot, interaction) => {
 
