@@ -1,7 +1,6 @@
+const getLocalCommands = require("../src/utils/getLocalCommands");
+  
 describe('getLocalCommands.js tests', () => {
-
-  const getLocalCommands = require("../src/utils/getLocalCommands");
-
 
   it('getLocalCommands Should Match', () => {
     // Arrange
