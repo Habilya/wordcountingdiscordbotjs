@@ -59,7 +59,7 @@ module.exports = {
 
                 const selectTitan = interaction.values[0];
 
-                reply.edit({ components: [], content: `Selected titean: ${selectTitan}` });
+                reply.edit({ components: [], content: `Selected titan: ${selectTitan}` });
                 
                 utilFindThargoidMatrix(interaction, selectTitan);
             });
