@@ -13,7 +13,7 @@ const htmlToJpeg = require('../../utils/htmlToJpeg');
 const leaderBoardTemplator = require('../../utils/leaderBoardTemplator');
 
 const cooldowns = new Set();
-const COOLDOWN_TIME_MINUTES = 1;
+const COOLDOWN_TIME_MINUTES = 5;
 const COLLECTOR_TIME_OUT_MINUTES = 1;
 const REACTION_COOL_DOWN = 'topreactionsbyuser';
 

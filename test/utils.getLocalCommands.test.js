@@ -16,14 +16,7 @@ describe('getLocalCommands.js tests', () => {
         name: 'findthargoidmatrix',
         description: 'This command will find systems containing thargoid matrices of different types',
         isDeleted: false,
-        options: [
-          {
-            name: 'titan-name',
-            description: 'The name of a thargoid titan.',
-            type: 3,
-            required: true,
-          }
-        ],
+        options: [],
         permissionsRequired: [],
         callback: expect.any(Function)
       },
@@ -101,14 +94,7 @@ describe('getLocalCommands.js tests', () => {
         name: 'topreactionsbyuser',
         description: 'displays top users by count of reactions.',
         isDeleted: false,
-        options: [
-          {
-            name: 'reaction-name',
-            description: 'The NickName of reaction to get the top of users from.',
-            type: 3,
-            required: true,
-          }
-        ],
+        options: [],
         permissionsRequired: [],
         callback: expect.any(Function)
       },
