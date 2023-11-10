@@ -1,108 +1,137 @@
-const { ApplicationCommandOptionType, PermissionFlagsBits, AttachmentBuilder } = require("discord.js");
+const {
+    ApplicationCommandOptionType,
+    PermissionFlagsBits,
+    AttachmentBuilder,
+    StringSelectMenuBuilder,
+    StringSelectMenuOptionBuilder,
+    ActionRowBuilder,
+    ComponentType
+} = require("discord.js");
+
 const dbLayer = require('../../datalayer/dbLayer');
 const htmlToJpeg = require('../../utils/htmlToJpeg');
-const fs = require("fs");
+const leaderBoardTemplator = require('../../utils/leaderBoardTemplator');
+
 const cooldowns = new Set();
-const COOLDOWN_TIME_MINUTES = 2;
+const COOLDOWN_TIME_MINUTES = 5;
+const COLLECTOR_TIME_OUT_MINUTES = 1;
+const REACTION_COOL_DOWN = 'topreactionsbyuser';
 
 
 module.exports = {
     name: "topreactionsbyuser",
     description: "displays top users by count of reactions.",
     isDeleted: false,
-    options: [
-        {
-            name: 'reaction-name',
-            description: 'The NickName of reaction to get the top of users from.',
-            type: ApplicationCommandOptionType.String,
-            required: true,
-        }
-    ],
+    options: [],
 
     permissionsRequired: [PermissionFlagsBits.ViewChannel],
 
     callback: async(discordBot, interaction) => {
         try {
-
-            const reactionNickName = interaction.options.get('reaction-name').value;
-
-            if(cooldowns.has(reactionNickName)) {
+            if(cooldowns.has(REACTION_COOL_DOWN)) {
                 interaction.reply({
-                    content: `Whoa, reaction: ${reactionNickName} was recently used, there is a cooldown of (${COOLDOWN_TIME_MINUTES}) minute(s).`,
+                    content: `Whoa, This function was recently used, there is a cooldown of (${COOLDOWN_TIME_MINUTES}) minute(s).`,
                     ephemeral: true
                 });
                 return;
             }
 
-            // have to use deferred reply, because the processing time is long...
-            await interaction.deferReply();
+            const allPossibleReactions = discordBot.getMessageReactions();
 
-            // initiate a cooldown for that command and that reaction nickname
-            cooldowns.add(reactionNickName);
-            setTimeout(() => {
-                cooldowns.delete(reactionNickName);
-            }, COOLDOWN_TIME_MINUTES * 60 * 1000);
-
-            // db call to get the query results
-            let topUsersReactionsByReactionName = await dbLayer.getTopUsersReactionsByReactionName(reactionNickName, 5);
-
-            if(topUsersReactionsByReactionName.length === 0) {
-                await interaction.editReply({
-                    content: `Couldn't find any results for the reaction NickName: ${reactionNickName}`,
+            if(allPossibleReactions.length <= 0) {
+                interaction.reply({
+                    content: `Looks like there are no reactions configured...`,
+                    ephemeral: true
                 });
                 return;
             }
 
-            // Read the template into a variable
-            const ladderboard_template = fs.readFileSync('./assets/templates/ladderboard_template.html');
-            const ladderboard_li_template = fs.readFileSync('./assets/templates/ladderboard_li_template.html');
+            // initiate a cooldown for that command and that reaction nickname
+            cooldowns.add(REACTION_COOL_DOWN);
+            setTimeout(() => {
+                cooldowns.delete(REACTION_COOL_DOWN);
+            }, COOLDOWN_TIME_MINUTES * 60 * 1000);
 
-            let ladderboard_li = '';
-            for(const leaderBoardLine of topUsersReactionsByReactionName) {
-                try {
-                    // find user within the server, to retrieve their nickname, avatar, etc.
-                    const targetUserObj = await interaction.guild.members.fetch(leaderBoardLine._id);
+            const selectMenu = new StringSelectMenuBuilder()
+                .setCustomId(interaction.id)
+                .setPlaceholder('Select a reaction:')
+                .addOptions(allPossibleReactions.map((reaction) => new StringSelectMenuOptionBuilder()
+                    .setLabel(reaction.messageReactionNickName)
+                    .setDescription(`${reaction.messagePattern} ${reaction.messagePatternFlags}`)
+                    .setValue(reaction.messageReactionNickName)
+                    .setEmoji(reaction.reactionEmojiId)
+                ));
 
-                    if(targetUserObj && targetUserObj.user) {
-                        ladderboard_li += GenerateLeaderBoardLine(ladderboard_li_template, targetUserObj, leaderBoardLine);
-                    }
-                } catch(error) {
-                    // most likely user left the server...
-                    continue;
+            const actionRow = new ActionRowBuilder().addComponents(selectMenu);
+
+            const reply = await interaction.reply({ components: [actionRow] });
+
+            const collector = reply.createMessageComponentCollector({
+                componentType: ComponentType.StringSelect,
+                filter: (i) => i.user.id === interaction.user.id && i.customId === interaction.id,
+                time: COLLECTOR_TIME_OUT_MINUTES * 60 * 1000,
+            });
+
+            collector.on('collect', async(interaction) => {
+                if(!interaction.values.length) {
+                    return;
                 }
-            }
 
-            const generatedLadderboard = GenerateLeaderBoard(ladderboard_template, reactionNickName, ladderboard_li);
+                const foundReaction = allPossibleReactions.filter(x => x.messageReactionNickName === interaction.values[0]);
 
-            const image = await htmlToJpeg(generatedLadderboard);
+                if(!foundReaction.length) {
+                    return;
+                }
 
-            let attachLeaderBoardAsImmage = new AttachmentBuilder(image).setName('leaderboard.jpg');
+                const selectReaction = foundReaction[0];
 
-            // !!ATTENTION!! you cannot use files attachmements and a text message 
-            // (only the text message will be visible!! (attachments will be just ignored))
-            await interaction.editReply({
-                files: [attachLeaderBoardAsImmage]
+                reply.edit({ components: [], content: `${selectReaction.reactionEmojiId} **${selectReaction.messageReactionNickName}**  (${selectReaction.messagePattern} ${selectReaction.messagePatternFlags})` });
+
+                // have to use deferred reply, because the processing time is long...
+                await interaction.deferReply();
+
+                // db call to get the query results
+                let topUsersReactionsByReactionName = await dbLayer.getTopUsersReactionsByReactionName(selectReaction.messageReactionNickName, 5);
+
+                if(topUsersReactionsByReactionName.length === 0) {
+                    interaction.editReply({
+                        content: `Couldn't find any results for the reaction NickName: ${selectReaction.messageReactionNickName}`,
+                    });
+                    return;
+                }
+
+                // Read the templates
+                leaderBoardTemplator.initTemplates();
+
+                let generatedLadderboard_li = '';
+                for(const leaderBoardLine of topUsersReactionsByReactionName) {
+                    try {
+                        // find user within the server, to retrieve their nickname, avatar, etc.
+                        const targetUserObj = await interaction.guild.members.fetch(leaderBoardLine._id);
+
+                        if(targetUserObj && targetUserObj.user) {
+                            generatedLadderboard_li += leaderBoardTemplator.GenerateLeaderBoardLine(targetUserObj, leaderBoardLine);
+                        }
+                    } catch(error) {
+                        // most likely user left the server...
+                        continue;
+                    }
+                }
+
+                const generatedLadderboard = leaderBoardTemplator.GenerateLeaderBoard(selectReaction.messageReactionNickName, generatedLadderboard_li);
+
+                const image = await htmlToJpeg(generatedLadderboard);
+
+                let attachLeaderBoardAsImmage = new AttachmentBuilder(image).setName('leaderboard.jpg');
+
+                // !!ATTENTION!! you cannot use files attachmements and a text message 
+                // (only the text message will be visible!! (attachments will be just ignored))
+                interaction.editReply({
+                    files: [attachLeaderBoardAsImmage]
+                });
             });
         } catch(error) {
             discordBot.getLogger().error(`unhandled error while preparing reactions leadderboard: ${error}\n${error.stack}`);
         }
     },
-};
-
-const GenerateLeaderBoardLine = (ladderboard_li_template, targetUserObj, leaderBoardLine) => {
-    // Users can have multiple ways to configure their NickName
-    const displayName = `${targetUserObj.nickname ?? targetUserObj.user.globalName ?? targetUserObj.user.username}`;
-
-    return ladderboard_li_template
-        .toString()
-        .replace('{{avatar_url}}', targetUserObj.user.displayAvatarURL({ size: 256 }))
-        .replace('{{display_name}}', `${displayName} (${targetUserObj.user.tag})`)
-        .replace('{{display_score}}', leaderBoardLine.messageReactionCount);
-};
-
-const GenerateLeaderBoard = (ladderboard_template, reactionNickName, ladderboard_li) => {
-    return ladderboard_template
-        .toString()
-        .replace('{{pattern_nickname}}', reactionNickName)
-        .replace('{{leaderboard}}', ladderboard_li);
 };
