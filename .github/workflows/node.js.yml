@@ -5,7 +5,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ ]
+    branches: [ "master" ]
   pull_request:
     branches: [ "master", "dev" ]
 
@@ -26,7 +26,5 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: Install dependencies
     - run: npm install
-    - name: Run all tests
     - run: npm run test
