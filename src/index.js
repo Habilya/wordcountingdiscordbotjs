@@ -1,10 +1,11 @@
 const discordBot = require("./configure/discordBot");
 const eventHandler = require("./handlers/eventHandler");
 
+discordBot.initDiscordBotConfig();
 
 discordBot.validateConfig();
 
-if (!discordBot.getIsValid()) {
+if(!discordBot.getIsValid()) {
     discordBot.getLogger().warn("Bot configuration is invalid, initialization halted!");
     return;
 }
