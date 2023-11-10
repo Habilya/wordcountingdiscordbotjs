@@ -1,24 +1,26 @@
 const dbLayer = require('../datalayer/dbLayer');
-
-let config = require('../../conf/config.json');
 let logger = require('../logger/logger');
 let { Client, GatewayIntentBits } = require("discord.js");
 
-
+let config;
 let client;
 let isValid;
 let messageReactions;
 
 
-exports.validateConfig = function() {
-    if (true) {
+exports.validateConfig = function () {
+    if(true) {
         // TODO Add config validations logic here
         isValid = true;
     }
 };
 
+exports.initDiscordBotConfig = function (configPath = '../../conf/config.json') {
+    config = require(configPath);
+}
+
 // Function Initializes the client property
-exports.initDiscordBotClient = function() {
+exports.initDiscordBotClient = function () {
     client = new Client({
         intents: [
             GatewayIntentBits.Guilds,
@@ -30,27 +32,27 @@ exports.initDiscordBotClient = function() {
 };
 
 // Logs in bot in discord
-exports.logInBot = function() {
+exports.logInBot = function () {
     client.login(config.Token);
 };
 
 // Connect to the database
-exports.dbConnect = async function() {
+exports.dbConnect = async function () {
     await dbLayer.initDBConnection(this);
 };
 
 // Populates the messageReactions from DB
-exports.populateMessageReactions = async function() {
-    if (config.isReactionToUserMessagesEnabled) {
+exports.populateMessageReactions = async function () {
+    if(config.isReactionToUserMessagesEnabled) {
         this.setMessageReactions(await dbLayer.getAllMessageReactions());
     }
 };
 
 // Log a user message reaction in the database
-exports.logUserMessageReaction = function(userId, messageReactionNickName) {
+exports.logUserMessageReaction = function (userId, messageReactionNickName) {
     try {
         dbLayer.logUserMessageReaction(userId, messageReactionNickName);
-    } catch (error) {
+    } catch(error) {
         logger.error(`Error saving new NewUserMessageReaction ${error}\n${error.stack}`);
         return;
     }
@@ -58,47 +60,47 @@ exports.logUserMessageReaction = function(userId, messageReactionNickName) {
 
 
 // Accessors
-exports.getClient = function() {
+exports.getClient = function () {
     return client;
 };
 
-exports.setClient = function(value) {
+exports.setClient = function (value) {
     client = value;
 };
 
 
-exports.getLogger = function() {
+exports.getLogger = function () {
     return logger;
 };
 
-exports.setLogger = function(value) {
+exports.setLogger = function (value) {
     logger = value;
 };
 
 
-exports.getConfig = function() {
+exports.getConfig = function () {
     return config;
 };
 
-exports.setConfig = function(value) {
+exports.setConfig = function (value) {
     config = value;
 };
 
 
-exports.getIsValid = function() {
+exports.getIsValid = function () {
     return isValid;
 };
 
-exports.setIsValid = function(value) {
+exports.setIsValid = function (value) {
     isValid = value;
 };
 
 
 
-exports.getMessageReactions = function() {
+exports.getMessageReactions = function () {
     return messageReactions;
 };
 
-exports.setMessageReactions = function(value) {
+exports.setMessageReactions = function (value) {
     messageReactions = value;
 };

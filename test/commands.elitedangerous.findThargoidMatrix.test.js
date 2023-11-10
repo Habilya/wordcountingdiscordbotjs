@@ -2,14 +2,13 @@ const { when } = require('jest-when');
 
 const config = require('../conf/config.test.json');
 const discordBot = require("../src/configure/discordBot");
-const findThargoidMatrix = require("../src/commands/elitedangerous/findThargoidMatrix");
 
+const utilFindThargoidMatrix = require('../src/utils/utilFindThargoidMatrix');
 const apiGetDcohWatchAPIOverview = require('../src/utils/apiGetDcohWatchAPIOverview');
 jest.mock('../src/utils/apiGetDcohWatchAPIOverview');
 
 
 describe('Command findThargoidMatrix.js tests', () => {
-  let spyOnCallBack;
   let message;
 
   beforeAll(async() => {
@@ -485,12 +484,8 @@ describe('Command findThargoidMatrix.js tests', () => {
       options: { get: jest.fn() },
     };
 
-    when(message.options.get).calledWith('titan-name').mockReturnValue({ value: 'Taranis' });
-
-    spyOnCallBack = jest.spyOn(findThargoidMatrix, 'callback');
-
     // Act (Global)
-    await findThargoidMatrix.callback(discordBot, message);
+    await utilFindThargoidMatrix(message, 'Taranis');
 
   });
 
@@ -502,7 +497,6 @@ describe('Command findThargoidMatrix.js tests', () => {
 
     // Assert
     expect(discordBot.getLogger().error.mock.calls).toHaveLength(0);
-    expect(spyOnCallBack.mock.calls).toHaveLength(1);
     expect(apiGetDcohWatchAPIOverview.mock.calls).toHaveLength(1);
 
     expect(message.editReply).toHaveBeenCalledWith({ "content": `\`\`\`╔════════════════════════════════════════════════════════════╗
