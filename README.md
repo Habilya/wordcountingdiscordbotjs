@@ -1,3 +1,13 @@
+[![CI Status](https://github.com/Habilya/wordcountingdiscordbotjs/actions/workflows/node.js.yml/badge.svg?branch=master)](https://github.com/Habilya/wordcountingdiscordbotjs/actions/workflows/node.js.yml)
+
+[![Latest release verison](https://img.shields.io/github/v/release/Habilya/wordcountingdiscordbotjs)](https://github.com/Habilya/wordcountingdiscordbotjs/releases)
+[![License](https://img.shields.io/github/license/Habilya/wordcountingdiscordbotjs)](https://github.com/Habilya/wordcountingdiscordbotjs/blob/master/LICENSE)
+[![Repository size](https://img.shields.io/github/repo-size/Habilya/wordcountingdiscordbotjs)](https://github.com/Habilya/wordcountingdiscordbotjs)
+
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
+[![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat)](https://www.firsttimersonly.com/)
+
+
 A discord bot to count how many times a specific word or a pattern was spoken.
 
 
