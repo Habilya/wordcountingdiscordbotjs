@@ -2,6 +2,10 @@ const { ApplicationCommandOptionType, PermissionFlagsBits } = require("discord.j
 
 const apiGetInaraMiningAnarchyLootSettlements = require('../../utils/apiGetInaraMiningAnarchyLootSettlements');
 
+const cooldowns = new Set();
+const COOLDOWN_TIME_MINUTES = 5;
+const COOL_DOWN_NAME = 'findLootAnarchyMiningSettlements';
+
 module.exports = {
     name: "find-loot-settlements",
     description: "Will find systems that have Anarchy Extraction settlements in big numbers near your system.",
@@ -15,13 +19,25 @@ module.exports = {
         },
     ],
 
-    permissionsRequired: [PermissionFlagsBits.Administrator],
-
+    permissionsRequired: [PermissionFlagsBits.ViewChannel],
+    
     callback: async(discordBot, interaction) => {
-
         try {
+            if(cooldowns.has(COOL_DOWN_NAME)) {
+                interaction.reply({
+                    content: `Whoa, This function was recently used, there is a cooldown of (${COOLDOWN_TIME_MINUTES}) minute(s).`,
+                    ephemeral: true
+                });
+                return;
+            }
+            
             // have to use deferred reply, because the processing time is long...
             await interaction.deferReply();
+            
+            cooldowns.add(COOL_DOWN_NAME);
+            setTimeout(() => {
+                cooldowns.delete(COOL_DOWN_NAME);
+            }, COOLDOWN_TIME_MINUTES * 60 * 1000);
 
             const systemName = interaction.options.get('system-name').value;
 
