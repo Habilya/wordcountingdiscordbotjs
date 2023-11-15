@@ -65,6 +65,9 @@ module.exports = {
             });
         } catch(error) {
             discordBot.getLogger().error(`Unhandled exception (find AX Matrix) while calling API: ${error}\n${error.stack}`);
+            interaction.editReply({
+                content: "Couldn't find anything."
+            });
         }
     },
 };
