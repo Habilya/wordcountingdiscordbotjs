@@ -1,5 +1,5 @@
 const getLocalCommands = require("../src/utils/getLocalCommands");
-  
+
 describe('getLocalCommands.js tests', () => {
 
   it('getLocalCommands Should Match', () => {
@@ -9,6 +9,36 @@ describe('getLocalCommands.js tests', () => {
         name: 'findaxreactivationmissions',
         description: 'This command will find systems that offer AX reactivation missions.',
         isDeleted: false,
+        permissionsRequired: [],
+        callback: expect.any(Function)
+      },
+      {
+        name: "find-loot-settlements",
+        description: "Will find systems that have Anarchy Extraction settlements in big numbers near your system.",
+        isDeleted: false,
+        options: [
+          {
+            name: 'system-name',
+            description: 'system-name',
+            type: 3,
+            required: true,
+          },
+        ],
+        permissionsRequired: [],
+        callback: expect.any(Function)
+      },
+      {
+        name: "find-loot-systems",
+        description: "Will find systems that have Anarchy Extraction settlements in big numbers near your system.",
+        isDeleted: false,
+        options: [
+          {
+            name: 'system-name',
+            description: 'system-name',
+            type: 3,
+            required: true,
+          },
+        ],
         permissionsRequired: [],
         callback: expect.any(Function)
       },
