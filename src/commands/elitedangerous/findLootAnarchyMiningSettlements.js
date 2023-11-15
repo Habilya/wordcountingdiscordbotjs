@@ -20,7 +20,7 @@ module.exports = {
     ],
 
     permissionsRequired: [PermissionFlagsBits.ViewChannel],
-    
+
     callback: async(discordBot, interaction) => {
         try {
             if(cooldowns.has(COOL_DOWN_NAME)) {
@@ -30,10 +30,10 @@ module.exports = {
                 });
                 return;
             }
-            
+
             // have to use deferred reply, because the processing time is long...
             await interaction.deferReply();
-            
+
             cooldowns.add(COOL_DOWN_NAME);
             setTimeout(() => {
                 cooldowns.delete(COOL_DOWN_NAME);
@@ -60,6 +60,9 @@ module.exports = {
 
         } catch(error) {
             discordBot.getLogger().error(`Unhandled exception (find AX Reactivation Missions) while calling API: ${error}\n${error.stack}`);
+            interaction.editReply({
+                content: "Couldn't find anything."
+            });
         }
     },
 };
