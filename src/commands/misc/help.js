@@ -39,7 +39,13 @@ module.exports = {
             }, {
                 name: '/triangulation-puzzle (A lot of arguments)',
                 value: 'Ex: /triangulation-puzzle system-name1:col 359 sector QJ-V c17-7 min-radius1:45 max-radius1:47 system-name2:hip 83788 min-radius2:39 max-radius2:41 system-name3:Col 359 sector ZQ-R c19-7 min-radius3:37 max-radius3:39 Prints Systems triangulated'
-            }, );
+            }, {
+                name: '/find-loot-systems system-name:[SYSTEM_NAME]',
+                value: 'Ex: /find-loot-systems system-name:Sol Prints systems with number of (possibly) lootable settlements and last updated times'
+            }, {
+                name: '/find-loot-settlements system-name:[SYSTEM_NAME]',
+                value: 'Ex: /find-loot-settlements system-name:Sol Prints (possibly) lootable settlements in that system with distance from star'
+            },);
 
         interaction.reply({
             embeds: [helpEmbed],

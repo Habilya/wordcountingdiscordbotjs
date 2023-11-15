@@ -132,6 +132,9 @@ module.exports = {
             });
         } catch(error) {
             discordBot.getLogger().error(`unhandled error while preparing reactions leadderboard: ${error}\n${error.stack}`);
+            interaction.editReply({
+                content: "Couldn't find anything."
+            });
         }
     },
 };

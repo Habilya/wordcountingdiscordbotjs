@@ -92,6 +92,9 @@ module.exports = {
 
         } catch(error) {
             discordBot.getLogger().error(`Unhandled exception (triangulation-puzzle command) while calling API: ${error}\n${error.stack}`);
+            interaction.editReply({
+                content: "Couldn't find anything."
+            });
         }
     },
 };
