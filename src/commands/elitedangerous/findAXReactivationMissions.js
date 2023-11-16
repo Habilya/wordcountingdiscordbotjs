@@ -8,18 +8,34 @@ const THARGOID_INVASION_LEVEL_ALERT = 20;
 const THARGOID_INVASION_LEVEL_INVASION = 30;
 const RULE_LIGHT_YEARS_RADIUS_FOR_REACTIVATION_MISSIONS = 20;
 
+const cooldowns = new Set();
+const COOLDOWN_TIME_MINUTES = 5;
+const COOL_DOWN_NAME = 'findAXReactivationMissions';
+
 module.exports = {
     name: "findaxreactivationmissions",
     description: "This command will find systems that offer AX reactivation missions.",
     isDeleted: false,
 
-    permissionsRequired: [PermissionFlagsBits.Administrator],
+    permissionsRequired: [PermissionFlagsBits.ViewChannel],
 
     callback: async(discordBot, interaction) => {
-
         try {
+            if(cooldowns.has(COOL_DOWN_NAME)) {
+                interaction.reply({
+                    content: `Whoa, This function was recently used, there is a cooldown of (${COOLDOWN_TIME_MINUTES}) minute(s).`,
+                    ephemeral: true
+                });
+                return;
+            }
+
             // have to use deferred reply, because the processing time is long...
             await interaction.deferReply();
+
+            cooldowns.add(COOL_DOWN_NAME);
+            setTimeout(() => {
+                cooldowns.delete(COOL_DOWN_NAME);
+            }, COOLDOWN_TIME_MINUTES * 60 * 1000);
 
             const overview = await apiGetDcohWatchAPIOverview();
 
