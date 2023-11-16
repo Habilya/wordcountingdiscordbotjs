@@ -1,68 +1,66 @@
 const {
     ApplicationCommandOptionType,
-    PermissionFlagsBits,
-    StringSelectMenuBuilder,
-    StringSelectMenuOptionBuilder,
-    ActionRowBuilder,
-    ComponentType
+    PermissionFlagsBits
 } = require("discord.js");
 
 const utilFindThargoidMatrix = require('../../utils/utilFindThargoidMatrix');
-
-const COLLECTOR_TIME_OUT_MINUTES = 1;
 
 module.exports = {
     name: "findthargoidmatrix",
     description: "This command will find systems containing thargoid matrices of different types",
     isDeleted: false,
-    options: [],
+    options: [
+        {
+            name: 'titan-name',
+            description: 'The name of a thargoid titan.',
+            type: ApplicationCommandOptionType.String,
+            required: true,
+            choices: [
+                {
+                    name: 'Cocijo',
+                    value: 'Cocijo',
+                },
+                {
+                    name: 'Hadad',
+                    value: 'Hadad',
+                },
+                {
+                    name: 'Indra',
+                    value: 'Indra'
+                },
+                {
+                    name: 'Leigong',
+                    value: 'Leigong',
+                },
+                {
+                    name: 'Oya',
+                    value: 'Oya',
+                },
+                {
+                    name: 'Raijin',
+                    value: 'Raijin',
+                },
+                {
+                    name: 'Taranis',
+                    value: 'Taranis',
+                },
+                {
+                    name: 'Thor',
+                    value: 'Thor',
+                },
+            ],
+        }
+    ],
 
     permissionsRequired: [PermissionFlagsBits.Administrator],
 
     callback: async(discordBot, interaction) => {
         try {
 
-            //const titanName = interaction.options.get('titan-name').value;
-            const allPossibleTitans = [
-                'Cocijo',
-                'Hadad',
-                'Indra',
-                'Leigong',
-                'Oya',
-                'Raijin',
-                'Taranis',
-                'Thor',
-            ];
+            const titanName = interaction.options.get('titan-name').value;
 
-            const selectMenu = new StringSelectMenuBuilder()
-                .setCustomId(interaction.id)
-                .setPlaceholder('Select a titan:')
-                .addOptions(allPossibleTitans.map((titan) => new StringSelectMenuOptionBuilder()
-                    .setLabel(titan)
-                    .setValue(titan)
-                ));
+            utilFindThargoidMatrix(interaction, titanName);
 
-            const actionRow = new ActionRowBuilder().addComponents(selectMenu);
-
-            const reply = await interaction.reply({ components: [actionRow] });
-
-            const collector = reply.createMessageComponentCollector({
-                componentType: ComponentType.StringSelect,
-                filter: (i) => i.user.id === interaction.user.id && i.customId === interaction.id,
-                time: COLLECTOR_TIME_OUT_MINUTES * 60 * 1000,
-            });
-
-            collector.on('collect', async(interaction) => {
-                if(!interaction.values.length) {
-                    return;
-                }
-
-                const selectTitan = interaction.values[0];
-
-                reply.edit({ components: [], content: `Selected titan: ${selectTitan}` });
-                
-                utilFindThargoidMatrix(interaction, selectTitan);
-            });
         } catch(error) {
             discordBot.getLogger().error(`Unhandled exception (find AX Matrix) while calling API: ${error}\n${error.stack}`);
             interaction.editReply({

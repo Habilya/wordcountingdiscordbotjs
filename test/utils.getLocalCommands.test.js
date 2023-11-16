@@ -46,7 +46,48 @@ describe('getLocalCommands.js tests', () => {
         name: 'findthargoidmatrix',
         description: 'This command will find systems containing thargoid matrices of different types',
         isDeleted: false,
-        options: [],
+        options: [
+          {
+            name: 'titan-name',
+            description: 'The name of a thargoid titan.',
+            type: 3,
+            required: true,
+            choices: [
+              {
+                name: 'Cocijo',
+                value: 'Cocijo',
+              },
+              {
+                name: 'Hadad',
+                value: 'Hadad',
+              },
+              {
+                name: 'Indra',
+                value: 'Indra'
+              },
+              {
+                name: 'Leigong',
+                value: 'Leigong',
+              },
+              {
+                name: 'Oya',
+                value: 'Oya',
+              },
+              {
+                name: 'Raijin',
+                value: 'Raijin',
+              },
+              {
+                name: 'Taranis',
+                value: 'Taranis',
+              },
+              {
+                name: 'Thor',
+                value: 'Thor',
+              },
+            ],
+          }
+        ],
         permissionsRequired: [],
         callback: expect.any(Function)
       },
