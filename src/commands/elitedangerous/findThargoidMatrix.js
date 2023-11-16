@@ -5,6 +5,10 @@ const {
 
 const utilFindThargoidMatrix = require('../../utils/utilFindThargoidMatrix');
 
+const cooldowns = new Set();
+const COOLDOWN_TIME_MINUTES = 5;
+const COOL_DOWN_NAME = 'findThargoidMatrix';
+
 module.exports = {
     name: "findthargoidmatrix",
     description: "This command will find systems containing thargoid matrices of different types",
@@ -52,12 +56,24 @@ module.exports = {
         }
     ],
 
-    permissionsRequired: [PermissionFlagsBits.Administrator],
+    permissionsRequired: [PermissionFlagsBits.ViewChannel],
 
     callback: async(discordBot, interaction) => {
         try {
+            if(cooldowns.has(COOL_DOWN_NAME)) {
+                interaction.reply({
+                    content: `Whoa, This function was recently used, there is a cooldown of (${COOLDOWN_TIME_MINUTES}) minute(s).`,
+                    ephemeral: true
+                });
+                return;
+            }
 
             const titanName = interaction.options.get('titan-name').value;
+            
+            cooldowns.add(COOL_DOWN_NAME);
+            setTimeout(() => {
+                cooldowns.delete(COOL_DOWN_NAME);
+            }, COOLDOWN_TIME_MINUTES * 60 * 1000);
 
             utilFindThargoidMatrix(interaction, titanName);
 
