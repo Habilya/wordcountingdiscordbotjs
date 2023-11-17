@@ -194,6 +194,62 @@ describe('Command findAXReactivationMissions.js tests', () => {
           "name": "37 A1 Tauri",
           "population": 0
         },
+                {
+          "effortFocus": 0,
+          "factionOperations": 0,
+          "factionAxOperations": 0,
+          "factionGeneralOperations": 0,
+          "factionRescueOperations": 0,
+          "factionLogisticsOperations": 0,
+          "specialFactionOperations": [],
+          "stationsUnderRepair": 0,
+          "stationsDamaged": 0,
+          "stationsUnderAttack": 0,
+          "features": [
+            "FederalFaction",
+            "ThargoidControlledReactivationMissions"
+          ],
+          "populationOriginal": 13545,
+          "thargoidLevel": {
+            "level": 20,
+            "name": "Alert",
+            "isInvisibleState": false
+          },
+          "progress": 2,
+          "progressPercent": 0.02,
+          "stateStartCycle": "2023-10-26T07:00:00+00:00",
+          "stateExpiration": {
+            "stateExpires": "2023-11-02T07:00:00+00:00",
+            "currentCycleEnds": "2023-11-02T07:00:00+00:00",
+            "remainingCycles": 0
+          },
+          "stateProgress": {
+            "progressPercent": 0.02,
+            "isCompleted": false,
+            "nextSystemState": null,
+            "systemStateChanges": null,
+            "progressLastChange": "2023-10-29T22:32:51.714336+00:00",
+            "progressLastChecked": "2023-10-29T22:32:51.714336+00:00"
+          },
+          "distanceToMaelstrom": 20.2274,
+          "barnacleMatrixInSystem": false,
+          "thargoidSpireSiteInSystem": false,
+          "thargoidSpireSiteBody": null,
+          "coordinates": {
+            "x": 6.75,
+            "y": -76.90625,
+            "z": -150.34375
+          },
+          "maelstrom": {
+            "name": "Indra",
+            "systemName": "HIP 20567",
+            "systemAddress": 1659744799067,
+            "ingameNumber": 2
+          },
+          "systemAddress": 7268024001897,
+          "name": "Scythia",
+          "population": 13545
+        },
         {
           "effortFocus": 0,
           "factionOperations": 0,
@@ -305,62 +361,6 @@ describe('Command findAXReactivationMissions.js tests', () => {
           "systemAddress": 2007997813434,
           "name": "HIP 20616",
           "population": 2617061
-        },
-        {
-          "effortFocus": 0,
-          "factionOperations": 0,
-          "factionAxOperations": 0,
-          "factionGeneralOperations": 0,
-          "factionRescueOperations": 0,
-          "factionLogisticsOperations": 0,
-          "specialFactionOperations": [],
-          "stationsUnderRepair": 0,
-          "stationsDamaged": 0,
-          "stationsUnderAttack": 0,
-          "features": [
-            "FederalFaction",
-            "ThargoidControlledReactivationMissions"
-          ],
-          "populationOriginal": 13545,
-          "thargoidLevel": {
-            "level": 20,
-            "name": "Alert",
-            "isInvisibleState": false
-          },
-          "progress": 2,
-          "progressPercent": 0.02,
-          "stateStartCycle": "2023-10-26T07:00:00+00:00",
-          "stateExpiration": {
-            "stateExpires": "2023-11-02T07:00:00+00:00",
-            "currentCycleEnds": "2023-11-02T07:00:00+00:00",
-            "remainingCycles": 0
-          },
-          "stateProgress": {
-            "progressPercent": 0.02,
-            "isCompleted": false,
-            "nextSystemState": null,
-            "systemStateChanges": null,
-            "progressLastChange": "2023-10-29T22:32:51.714336+00:00",
-            "progressLastChecked": "2023-10-29T22:32:51.714336+00:00"
-          },
-          "distanceToMaelstrom": 20.2274,
-          "barnacleMatrixInSystem": false,
-          "thargoidSpireSiteInSystem": false,
-          "thargoidSpireSiteBody": null,
-          "coordinates": {
-            "x": 6.75,
-            "y": -76.90625,
-            "z": -150.34375
-          },
-          "maelstrom": {
-            "name": "Indra",
-            "systemName": "HIP 20567",
-            "systemAddress": 1659744799067,
-            "ingameNumber": 2
-          },
-          "systemAddress": 7268024001897,
-          "name": "Scythia",
-          "population": 13545
         },
         {
           "effortFocus": 0,
