@@ -64,6 +64,8 @@ module.exports = {
                 table.addRow(system.name, system.thargoidLevel.name, system.maelstrom.name, militarySettlementsCount);
             }
 
+            table.sortColumnDesc(4);
+
             interaction.editReply({
                 content: '```' + table.toString() + '```',
             });

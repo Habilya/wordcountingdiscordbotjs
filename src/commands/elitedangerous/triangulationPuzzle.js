@@ -1,6 +1,6 @@
 const { ApplicationCommandOptionType, PermissionFlagsBits } = require("discord.js");
 const apiGetsphereSystems = require('../../utils/apiGetsphereSystems');
-const intersectManyOneDimensionalArrays = require('../../utils/intersectManyOneDimensionalArrays');
+const arrayFunctions = require('../../utils/arrayFunctions');
 
 module.exports = {
     name: "triangulation-puzzle",
@@ -87,7 +87,7 @@ module.exports = {
             const thirdSystemRadiusList = filterSystemsArray(await apiGetsphereSystems(SystemName3, maxRadius3, minRadius3));
 
             interaction.editReply({
-                content: '```' + intersectManyOneDimensionalArrays(firstSystemRadiusList, secondSystemRadiusList, thirdSystemRadiusList) + '```',
+                content: '```' + arrayFunctions.intersectManyOneDimensionalArrays(firstSystemRadiusList, secondSystemRadiusList, thirdSystemRadiusList) + '```',
             });
 
         } catch(error) {
