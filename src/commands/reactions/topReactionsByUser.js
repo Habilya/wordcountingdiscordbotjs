@@ -109,8 +109,9 @@ module.exports = {
                 const generatedLadderboard_li = await leaderBoardTemplator.PrepareLeaderBoardTable(interaction, topUsersReactionsByReactionName, LEADERBOARD_DISPLAY_LIMIT);
 
                 const generatedLadderboard = leaderBoardTemplator.GenerateLeaderBoard(selectReaction.messageReactionNickName, generatedLadderboard_li);
-
-                const image = await htmlToJpeg(generatedLadderboard);
+                
+                htmlToJpeg.initChromiumBrowserExecutablePath(discordBot.getConfig().ChromiumBrowserPath);
+                const image = await htmlToJpeg.transformHTMLToJPEG(generatedLadderboard);
 
                 let attachLeaderBoardAsImmage = new AttachmentBuilder(image).setName('leaderboard.jpg');
 

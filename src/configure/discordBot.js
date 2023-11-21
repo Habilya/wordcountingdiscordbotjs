@@ -8,16 +8,16 @@ let isValid;
 let messageReactions;
 
 
+exports.initDiscordBotConfig = function (configPath = '../../conf/config.json') {
+    config = require(configPath);
+}
+
 exports.validateConfig = function () {
     if(true) {
         // TODO Add config validations logic here
         isValid = true;
     }
 };
-
-exports.initDiscordBotConfig = function (configPath = '../../conf/config.json') {
-    config = require(configPath);
-}
 
 // Function Initializes the client property
 exports.initDiscordBotClient = function () {
