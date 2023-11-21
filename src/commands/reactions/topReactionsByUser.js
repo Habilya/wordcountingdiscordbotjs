@@ -106,7 +106,7 @@ module.exports = {
                 // Read the templates
                 leaderBoardTemplator.initTemplates();
 
-                const generatedLadderboard_li = await leaderBoardTemplator.PrepareLeaderBoardTable(interaction, topUsersReactionsByReactionName);
+                const generatedLadderboard_li = await leaderBoardTemplator.PrepareLeaderBoardTable(interaction, topUsersReactionsByReactionName, LEADERBOARD_DISPLAY_LIMIT);
 
                 const generatedLadderboard = leaderBoardTemplator.GenerateLeaderBoard(selectReaction.messageReactionNickName, generatedLadderboard_li);
 

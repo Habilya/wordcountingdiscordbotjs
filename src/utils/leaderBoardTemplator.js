@@ -21,27 +21,27 @@ async function PrepareLeaderBoardTable(discordInteraction, usersReactionsQueryRe
 
     for(const queryResult of usersReactionsQueryResult) {
         try {
-        // find user within the server, to retrieve their nickname, avatar, etc.
-        const targetUserObj = await GetDiscordMemberByIdFromDiscordInteraction(discordInteraction, queryResult._id);
+            // find user within the server, to retrieve their nickname, avatar, etc.
+            const targetUserObj = await GetDiscordMemberByIdFromDiscordInteraction(discordInteraction, queryResult._id);
 
-        if(targetUserObj && targetUserObj.user) {
-            const avatarURL = targetUserObj.user.displayAvatarURL({ size: 256 });
-            // Users can have multiple ways to configure their NickName
-            const userDisplayName = `${targetUserObj.nickname ?? targetUserObj.user.globalName ?? targetUserObj.user.username}`;
-            const userAdditionalInformation = targetUserObj.user.tag;
-            const messageReactionCount = queryResult.messageReactionCount;
+            if(targetUserObj && targetUserObj.user) {
+                const avatarURL = targetUserObj.user.displayAvatarURL({ size: 256 });
+                // Users can have multiple ways to configure their NickName
+                const userDisplayName = `${targetUserObj.nickname ?? targetUserObj.user.globalName ?? targetUserObj.user.username}`;
+                const userAdditionalInformation = targetUserObj.user.tag;
+                const messageReactionCount = queryResult.messageReactionCount;
 
-            generatedLadderboard_li += GenerateLeaderBoardLine(avatarURL, userDisplayName, userAdditionalInformation, messageReactionCount);
-            linesCount++;
-        }
+                generatedLadderboard_li += GenerateLeaderBoardLine(avatarURL, userDisplayName, userAdditionalInformation, messageReactionCount);
+                linesCount++;
+            }
 
-        if(linesCount >= displayLimit) {
-            break;
-        }
+            if(linesCount >= displayLimit) {
+                break;
+            }
 
         } catch(error) {
-        // most likely user left the server...
-        continue;
+            // most likely user left the server...
+            continue;
         }
     }
 
