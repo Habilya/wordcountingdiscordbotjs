@@ -1,8 +1,23 @@
-const compareObjectArrayValues = require("../src/utils/compareObjectArrayValues");
+const arrayFunctions = require("../src/utils/arrayFunctions");
 
-describe('compareObjectArrayValues.js tests', () => {
+describe('arrayFunctions.js tests', () => {
 
-  it('Sort nbSettlements desc Should Match', () => {
+  it('arrayFunctions.intersectManyOneDimensionalArrays Should Match', () => {
+    // Arrange
+    let expected = ['apple', 'orange'];
+
+    let array1 = ['apple', 'carrot', 'potato', 'orange', 'grapes'];
+    let array2 = ['apple', 'orange'];
+    let array3 = ['strawbery', 'apple', 'orange', 'water melon', 'grapes'];
+
+    // Act
+    let actual = arrayFunctions.intersectManyOneDimensionalArrays(array1, array2, array3);
+    
+    // Assert
+    expect(actual).toEqual(expected);
+  });
+  
+    it('arrayFunctions.compareObjectArrayValues Sort nbSettlements desc Should Match', () => {
     // Arrange
     let expected = [{
         "lastUpdated": "3 hours ago",
@@ -67,14 +82,14 @@ describe('compareObjectArrayValues.js tests', () => {
       }, ];
 
     // Act
-    let actual = input.sort(compareObjectArrayValues('nbSettlements', 'desc'));
+    let actual = input.sort(arrayFunctions.compareObjectArrayValues('nbSettlements', 'desc'));
 
     // Assert
     expect(actual).toEqual(expected);
   });
 
 
-  it('Sort Station asc Should Match', () => {
+  it('arrayFunctions.compareObjectArrayValues Sort Station asc Should Match', () => {
     // Arrange
     let expected = [{
         "Allegiance": "Independent",
@@ -199,7 +214,7 @@ describe('compareObjectArrayValues.js tests', () => {
       }, ];
 
     // Act
-    let actual = input.sort(compareObjectArrayValues('Station'));
+    let actual = input.sort(arrayFunctions.compareObjectArrayValues('Station'));
 
     // Assert
     expect(actual).toEqual(expected);
