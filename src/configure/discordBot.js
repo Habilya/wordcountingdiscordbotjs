@@ -1,4 +1,5 @@
 const dbLayer = require('../datalayer/dbLayer');
+const stringFunctions = require('../utils/stringFunctions');
 let logger = require('../logger/logger');
 let { Client, GatewayIntentBits } = require("discord.js");
 
@@ -8,16 +9,44 @@ let isValid;
 let messageReactions;
 
 
-exports.validateConfig = function () {
-    if(true) {
-        // TODO Add config validations logic here
-        isValid = true;
-    }
-};
-
 exports.initDiscordBotConfig = function (configPath = '../../conf/config.json') {
     config = require(configPath);
 }
+
+
+function validateStringInConfig(name) {
+    return `Field ${name} must be configured in the conf/config.json file`;
+}
+
+exports.validateConfig = function () {
+    // Initially valid...
+    isValid = true;
+
+    if(stringFunctions.stringIsNullOrEmpty(config.Token)) {
+        isValid = false;
+        logger.warning(validateStringInConfig('Token'));
+    }
+
+    if(stringFunctions.stringIsNullOrEmpty(config.GuildId)) {
+        isValid = false;
+        logger.warning(validateStringInConfig('GuildId'));
+    }
+
+    if(stringFunctions.stringIsNullOrEmpty(config.ClientId)) {
+        isValid = false;
+        logger.warning(validateStringInConfig('ClientId'));
+    }
+
+    if(config.isReactionToUserMessagesEnabled && stringFunctions.stringIsNullOrEmpty(config.ChromiumBrowserPath)) {
+        isValid = false;
+        logger.warning(`If isReactionToUserMessagesEnabled, ${validateStringInConfig('ChromiumBrowserPath')}`);
+    }
+
+    if(config.isReactionToUserMessagesEnabled && stringFunctions.stringIsNullOrEmpty(config.MongodbURI)) {
+        isValid = false;
+        logger.warning(`If isReactionToUserMessagesEnabled, ${validateStringInConfig('MongodbURI')}`);
+    }
+};
 
 // Function Initializes the client property
 exports.initDiscordBotClient = function () {

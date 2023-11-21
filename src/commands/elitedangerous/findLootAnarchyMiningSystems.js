@@ -2,7 +2,7 @@ const { ApplicationCommandOptionType, PermissionFlagsBits } = require("discord.j
 
 const apiGetInaraMiningAnarchyLootSettlements = require('../../utils/apiGetInaraMiningAnarchyLootSettlements');
 const groupAnarchyLootSettlements = require('../../utils/groupAnarchyLootSettlements');
-const compareObjectArrayValues = require('../../utils/compareObjectArrayValues');
+const arrayFunctions = require('../../utils/arrayFunctions');
 
 const TOP_SYSTEMS_DISPLAY_LIMIT = 10;
 
@@ -37,7 +37,7 @@ module.exports = {
 
             // have to use deferred reply, because the processing time is long...
             await interaction.deferReply();
-            
+
             cooldowns.add(COOL_DOWN_NAME);
             setTimeout(() => {
                 cooldowns.delete(COOL_DOWN_NAME);
@@ -49,7 +49,7 @@ module.exports = {
 
             const groupedSystemsByNbSettlements = groupAnarchyLootSettlements(overview);
 
-            const sortedSystemsByNbSettlements = groupedSystemsByNbSettlements.sort(compareObjectArrayValues('nbSettlements', 'desc'));
+            const sortedSystemsByNbSettlements = groupedSystemsByNbSettlements.sort(arrayFunctions.compareObjectArrayValues('nbSettlements', 'desc'));
 
             let outputMessage = '';
             for(const system of sortedSystemsByNbSettlements.slice([0], [TOP_SYSTEMS_DISPLAY_LIMIT])) {

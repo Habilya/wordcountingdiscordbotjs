@@ -12,6 +12,9 @@ const dbLayer = require('../../datalayer/dbLayer');
 const htmlToJpeg = require('../../utils/htmlToJpeg');
 const leaderBoardTemplator = require('../../utils/leaderBoardTemplator');
 
+const QUERY_SELECT_LIMIT = 20;
+const LEADERBOARD_DISPLAY_LIMIT = 5;
+
 const cooldowns = new Set();
 const COOLDOWN_TIME_MINUTES = 5;
 const COLLECTOR_TIME_OUT_MINUTES = 1;
@@ -91,7 +94,7 @@ module.exports = {
                 await interaction.deferReply();
 
                 // db call to get the query results
-                let topUsersReactionsByReactionName = await dbLayer.getTopUsersReactionsByReactionName(selectReaction.messageReactionNickName, 5);
+                let topUsersReactionsByReactionName = await dbLayer.getTopUsersReactionsByReactionName(selectReaction.messageReactionNickName, QUERY_SELECT_LIMIT);
 
                 if(topUsersReactionsByReactionName.length === 0) {
                     interaction.editReply({
@@ -103,24 +106,12 @@ module.exports = {
                 // Read the templates
                 leaderBoardTemplator.initTemplates();
 
-                let generatedLadderboard_li = '';
-                for(const leaderBoardLine of topUsersReactionsByReactionName) {
-                    try {
-                        // find user within the server, to retrieve their nickname, avatar, etc.
-                        const targetUserObj = await interaction.guild.members.fetch(leaderBoardLine._id);
-
-                        if(targetUserObj && targetUserObj.user) {
-                            generatedLadderboard_li += leaderBoardTemplator.GenerateLeaderBoardLine(targetUserObj, leaderBoardLine);
-                        }
-                    } catch(error) {
-                        // most likely user left the server...
-                        continue;
-                    }
-                }
+                const generatedLadderboard_li = await leaderBoardTemplator.PrepareLeaderBoardTable(interaction, topUsersReactionsByReactionName, LEADERBOARD_DISPLAY_LIMIT);
 
                 const generatedLadderboard = leaderBoardTemplator.GenerateLeaderBoard(selectReaction.messageReactionNickName, generatedLadderboard_li);
-
-                const image = await htmlToJpeg(generatedLadderboard);
+                
+                htmlToJpeg.initChromiumBrowserExecutablePath(discordBot.getConfig().ChromiumBrowserPath);
+                const image = await htmlToJpeg.transformHTMLToJPEG(generatedLadderboard);
 
                 let attachLeaderBoardAsImmage = new AttachmentBuilder(image).setName('leaderboard.jpg');
 

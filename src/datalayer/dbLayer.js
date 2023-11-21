@@ -28,7 +28,7 @@ exports.getAllMessageReactions = async function() {
     return await MessageReaction.find();
 };
 
-// Log a user message reaction
+
 exports.logUserMessageReaction = function(userId, messageReactionNickName) {
     const newUserMessageReaction = new UserMessageReaction({
         messageReactionNickName: messageReactionNickName,
@@ -38,18 +38,6 @@ exports.logUserMessageReaction = function(userId, messageReactionNickName) {
     
     newUserMessageReaction.save();
 };
-
-
-// TODO Mock this
-/*
-[
-  { _id: '615751829300576314', messageReactionCount: 6 },
-  { _id: '322173755470118914', messageReactionCount: 3 },
-  { _id: '', messageReactionCount: 2 },
-  { _id: '', messageReactionCount: 1 }
-]
-
-*/
 
 
 exports.getTopUsersReactionsByReactionName = async function(reactionNickName, topDisplayLimit) {

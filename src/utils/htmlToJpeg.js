@@ -1,14 +1,27 @@
 const nodeHtmlToImage = require('node-html-to-image');
 
-module.exports = async(html) => {
+let chromiumBrowserExecutablePath;
+
+function initChromiumBrowserExecutablePath(path) {
+    chromiumBrowserExecutablePath = path;
+}
+
+async function transformHTMLToJPEG(html) {
+    if(!chromiumBrowserExecutablePath) {
+        return;
+    }
+
     return await nodeHtmlToImage({
         html: html,
         quality: 100,
         type: 'jpeg',
         puppeteerArgs: {
             args: ['--no-sandbox'],
-            executablePath: '/usr/bin/chromium-browser',
+            executablePath: chromiumBrowserExecutablePath,
         },
         encoding: 'buffer',
     });
-};
+}
+
+exports.initChromiumBrowserExecutablePath = initChromiumBrowserExecutablePath;
+exports.transformHTMLToJPEG = transformHTMLToJPEG;
