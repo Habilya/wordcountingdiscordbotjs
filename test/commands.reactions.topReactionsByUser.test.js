@@ -66,18 +66,14 @@ describe('Command topReactionsByUser.js tests', () => {
 
     // Act (Global)
     topUsersReactionsByReactionName = await dbLayer.getTopUsersReactionsByReactionName('gank', 5);
-    leaderBoardTemplator.initTemplates();
+    const pathToHTMLTemplates = './assets/templates/';
+    leaderBoardTemplator.initTemplates(pathToHTMLTemplates);
     generatedLadderboard_li = await leaderBoardTemplator.PrepareLeaderBoardTable(message, topUsersReactionsByReactionName, 5);
   });
 
   it('Command /topReactionsByUser html Should Match', async() => {
-
     // Arrange
-
-    // Act
-
-    // Assert
-    expect(generatedLadderboard_li).toBe(`<article class="leaderboard__profile">
+    const expected_result = `<article class="leaderboard__profile">
   <img src="http://615751829300576314.jpg" class="leaderboard__picture">
   <span class="leaderboard__name">nickname - 615751829300576314 (6314)</span>
   <span class="leaderboard__value">6</span>
@@ -93,7 +89,18 @@ describe('Command topReactionsByUser.js tests', () => {
   <img src="http://322173755470118915.jpg" class="leaderboard__picture">
   <span class="leaderboard__name">username - 322173755470118915 (8915)</span>
   <span class="leaderboard__value">1</span>
-</article>`);
+</article>`;
+    // Act
+    let actual = generatedLadderboard_li
+        .split("\r").join("")
+        .split("\n").join("");
+
+    let expected = expected_result
+        .split("\r").join("")
+        .split("\n").join("");
+    
+    // Assert
+    expect(actual).toBe(expected);
   });
 
 });

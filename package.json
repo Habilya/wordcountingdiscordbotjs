@@ -1,10 +1,10 @@
 {
   "name": "wordcountingdiscordbotjs",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A discord bot to count how many times a specific word or a pattern was spoken",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest --verbose",
+    "test": "jest",
     "test-mon": "jest --watchAll --verbose"
   },
   "jest": {
@@ -25,7 +25,7 @@
     "jest-when": "^3.6.0",
     "jsdom": "^22.1.0",
     "mongoose": "^7.6.2",
-    "node-html-to-image": "^4.0.0",
+    "node-html-to-image": "^5.0.0",
     "winston": "^3.11.0",
     "winston-daily-rotate-file": "^4.7.1"
   }
