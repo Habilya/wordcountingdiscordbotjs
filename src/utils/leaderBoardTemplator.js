@@ -1,13 +1,11 @@
 const fs = require("fs");
 const path = require("path");
 
-const pathToHTMLTemplates = '../../assets/templates/';
-
 let ladderboard_template = '';
 let ladderboard_li_template = '';
 
 
-function initTemplates() {
+function initTemplates(pathToHTMLTemplates) {
     // Read the template into a variable
     ladderboard_template = fs.readFileSync(path.join(pathToHTMLTemplates, 'ladderboard_template.html'));
     ladderboard_li_template = fs.readFileSync(path.join(pathToHTMLTemplates, 'ladderboard_li_template.html'));
@@ -52,7 +50,6 @@ async function PrepareLeaderBoardTable(discordInteraction, usersReactionsQueryRe
 }
 
 function GenerateLeaderBoardLine(avatarURL, userDisplayName, userAdditionalInformation, messageReactionCount) {
-
     return ladderboard_li_template
         .toString()
         .replace('{{avatar_url}}', avatarURL)
