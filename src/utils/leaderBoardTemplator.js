@@ -1,4 +1,7 @@
 const fs = require("fs");
+const path = require("path");
+
+const pathToHTMLTemplates = '../../assets/templates/';
 
 let ladderboard_template = '';
 let ladderboard_li_template = '';
@@ -6,8 +9,8 @@ let ladderboard_li_template = '';
 
 function initTemplates() {
     // Read the template into a variable
-    ladderboard_template = fs.readFileSync('./assets/templates/ladderboard_template.html');
-    ladderboard_li_template = fs.readFileSync('./assets/templates/ladderboard_li_template.html');
+    ladderboard_template = fs.readFileSync(path.join(pathToHTMLTemplates, 'ladderboard_template.html'));
+    ladderboard_li_template = fs.readFileSync(path.join(pathToHTMLTemplates, 'ladderboard_li_template.html'));
 }
 
 async function GetDiscordMemberByIdFromDiscordInteraction(discordInteraction, userId) {
