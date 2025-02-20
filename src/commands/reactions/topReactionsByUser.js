@@ -104,8 +104,7 @@ module.exports = {
                 }
 
                 // Read the templates
-                const pathToHTMLTemplates = '../../assets/templates/';
-                leaderBoardTemplator.initTemplates(pathToHTMLTemplates);
+                leaderBoardTemplator.initTemplates(discordBot.getConfig().ReactionsReportTemplateFolderFullPath);
 
                 const generatedLadderboard_li = await leaderBoardTemplator.PrepareLeaderBoardTable(interaction, topUsersReactionsByReactionName, LEADERBOARD_DISPLAY_LIMIT);
 

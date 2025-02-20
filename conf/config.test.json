@@ -1,9 +1,10 @@
 {
-    "Token": "[YOUR_BOT_TOKEN_HERE]",
-    "GuildId": "[YOUR_DISCORD_SERVER_ID_HERE]",
-    "ClientId": "[YOUR_BOT_ID_HERE]",
-    "BotActivityStatusName": "[YOUR_BOT_STATUS_ACTIVITY_NAME]",
-    "isReactionToUserMessagesEnabled": true,
-    "ChromiumBrowserPath": "[YOUR_CHROMIUM_BROWSER_PATH]",
-    "MongodbURI": "[YOUR_MONGODB_URI_HERE]"
+  "Token": "[YOUR_BOT_TOKEN_HERE]",
+  "GuildId": "[YOUR_DISCORD_SERVER_ID_HERE]",
+  "ClientId": "[YOUR_BOT_ID_HERE]",
+  "BotActivityStatusName": "[YOUR_BOT_STATUS_ACTIVITY_NAME]",
+  "isReactionToUserMessagesEnabled": true,
+  "ReactionsReportTemplateFolderFullPath": "[YOUR_REPORTS_TEMPLATES_PATH]",
+  "ChromiumBrowserPath": "[YOUR_CHROMIUM_BROWSER_PATH]",
+  "MongodbURI": "[YOUR_MONGODB_URI_HERE]"
 }

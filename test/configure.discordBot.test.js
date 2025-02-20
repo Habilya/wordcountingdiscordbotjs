@@ -43,13 +43,14 @@ describe('01initialized.js tests', () => {
         discordBot.validateConfig();
 
         // Assert
-        expect(discordBot.getLogger().warning.mock.calls).toHaveLength(5);
+        expect(discordBot.getLogger().warning.mock.calls).toHaveLength(6);
         expect(discordBot.getLogger().warning.mock.calls).toEqual([
             ["Field Token must be configured in the conf/config.json file"],
             ["Field GuildId must be configured in the conf/config.json file"],
             ["Field ClientId must be configured in the conf/config.json file"],
             ["If isReactionToUserMessagesEnabled, Field ChromiumBrowserPath must be configured in the conf/config.json file"],
-            ["If isReactionToUserMessagesEnabled, Field MongodbURI must be configured in the conf/config.json file"]
+            ["If isReactionToUserMessagesEnabled, Field MongodbURI must be configured in the conf/config.json file"],
+            ["If isReactionToUserMessagesEnabled, Field ReactionsReportTemplateFolderFullPath must be configured in the conf/config.json file"]
         ]);
     });
 
