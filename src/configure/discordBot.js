@@ -46,6 +46,11 @@ exports.validateConfig = function () {
         isValid = false;
         logger.warning(`If isReactionToUserMessagesEnabled, ${validateStringInConfig('MongodbURI')}`);
     }
+
+    if (config.isReactionToUserMessagesEnabled && stringFunctions.stringIsNullOrEmpty(config.ReactionsReportTemplateFolderFullPath)) {
+        isValid = false;
+        logger.warning(`If isReactionToUserMessagesEnabled, ${validateStringInConfig('ReactionsReportTemplateFolderFullPath')}`);
+    }
 };
 
 // Function Initializes the client property

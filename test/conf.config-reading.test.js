@@ -84,4 +84,15 @@ describe('config.json reading test', () => {
         expect(actual).toBe(expected);
     });
 
+    it('can read config.json ReactionsReportTemplateFolderFullPath', () => {
+        // Arrange
+        let expected = "[YOUR_REPORTS_TEMPLATES_PATH]";
+
+        // Act
+        let actual = config.ReactionsReportTemplateFolderFullPath;
+
+        // Assert
+        expect(actual).toBe(expected);
+    });
+
 });

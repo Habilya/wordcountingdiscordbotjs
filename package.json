@@ -1,6 +1,6 @@
 {
   "name": "wordcountingdiscordbotjs",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A discord bot to count how many times a specific word or a pattern was spoken",
   "main": "src/index.js",
   "scripts": {
