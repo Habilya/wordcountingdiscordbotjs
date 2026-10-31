@@ -24,32 +24,32 @@ exports.validateConfig = function () {
 
     if(stringFunctions.stringIsNullOrEmpty(config.Token)) {
         isValid = false;
-        logger.warning(validateStringInConfig('Token'));
+        logger.warn(validateStringInConfig('Token'));
     }
 
     if(stringFunctions.stringIsNullOrEmpty(config.GuildId)) {
         isValid = false;
-        logger.warning(validateStringInConfig('GuildId'));
+        logger.warn(validateStringInConfig('GuildId'));
     }
 
     if(stringFunctions.stringIsNullOrEmpty(config.ClientId)) {
         isValid = false;
-        logger.warning(validateStringInConfig('ClientId'));
+        logger.warn(validateStringInConfig('ClientId'));
     }
 
     if(config.isReactionToUserMessagesEnabled && stringFunctions.stringIsNullOrEmpty(config.ChromiumBrowserPath)) {
         isValid = false;
-        logger.warning(`If isReactionToUserMessagesEnabled, ${validateStringInConfig('ChromiumBrowserPath')}`);
+        logger.warn(`If isReactionToUserMessagesEnabled, ${validateStringInConfig('ChromiumBrowserPath')}`);
     }
 
     if(config.isReactionToUserMessagesEnabled && stringFunctions.stringIsNullOrEmpty(config.MongodbURI)) {
         isValid = false;
-        logger.warning(`If isReactionToUserMessagesEnabled, ${validateStringInConfig('MongodbURI')}`);
+        logger.warn(`If isReactionToUserMessagesEnabled, ${validateStringInConfig('MongodbURI')}`);
     }
 
     if (config.isReactionToUserMessagesEnabled && stringFunctions.stringIsNullOrEmpty(config.ReactionsReportTemplateFolderFullPath)) {
         isValid = false;
-        logger.warning(`If isReactionToUserMessagesEnabled, ${validateStringInConfig('ReactionsReportTemplateFolderFullPath')}`);
+        logger.warn(`If isReactionToUserMessagesEnabled, ${validateStringInConfig('ReactionsReportTemplateFolderFullPath')}`);
     }
 };
 
