@@ -1,311 +1,650 @@
 const fs = require("fs");
 const path = require("path");
 
-let started = false;
-
-module.exports = async(discordBot) => {
-    if(started) return;
+module.exports = async function (discordBot) {
+    if(module.exports.started) {
+        return;
+    }
 
     const logger = discordBot.getLogger();
     const config = discordBot.getConfig();
     const client = discordBot.getClient();
 
-    // Configuration
-    const channelId = config.DoorCameraChannelId;
-    const CAPTURE_DIR = config.DoorCameraCaptureDirectory;
-    const MAX_FILE_SIZE = config.DoorCameraMaxFileSizeMB * 1024 * 1024;
-    const POLL_INTERVAL_MS = config.DoorCameraPollIntervalMs;
-    const BATCH_DELAY_MS = config.DoorCameraBatchDelayMs;
-    const RETRY_DELAY_MS = config.DoorCameraRetryDelayMs;
+    const GUILD_ID = config.GuildId;
+
+    // This particular process Configuration
+    const processingConfig = config.DoorCameraProcessing;
+
+    if(!processingConfig ||
+        typeof processingConfig !== "object" ||
+        Array.isArray(processingConfig)
+    ) {
+        logger.error(
+            "Door camera: Missing DoorCameraProcessing configuration."
+        );
+        return;
+    }
+
+    const CHANNEL_ID = processingConfig.ChannelId;
+    const CAPTURE_DIR = processingConfig.CaptureDirectory;
+    const INDEX_FILE_NAME = processingConfig.IndexFileName;
+    const MAX_FILE_SIZE = processingConfig.MaxFileSizeMB * 1024 * 1024;
+    const MAX_MESSAGE_SIZE = processingConfig.MaxMessageSizeMB * 1024 * 1024;
+    const POLL_INTERVAL_MS = processingConfig.PollIntervalMs;
+    const EVENT_GAP_MS = processingConfig.EventGapMs;
+    const EVENT_QUIET_MS = processingConfig.EventQuietMs;
+    const BETWEEN_EVENTS_MS = processingConfig.BetweenEventsMs;
+    const RETRY_DELAY_MS = processingConfig.RetryDelayMs;
 
     // Validate configuration
     const requiredSettings = {
-        DoorCameraChannelId: channelId,
-        DoorCameraCaptureDirectory: CAPTURE_DIR,
-        DoorCameraMaxFileSizeMB: config.DoorCameraMaxFileSizeMB,
-        DoorCameraPollIntervalMs: POLL_INTERVAL_MS,
-        DoorCameraBatchDelayMs: BATCH_DELAY_MS,
-        DoorCameraRetryDelayMs: RETRY_DELAY_MS
+        ChannelId: CHANNEL_ID,
+        CaptureDirectory: CAPTURE_DIR,
+        IndexFileName: INDEX_FILE_NAME,
+        MaxFileSizeMB: processingConfig.MaxFileSizeMB,
+        MaxMessageSizeMB: processingConfig.MaxMessageSizeMB,
+        PollIntervalMs: POLL_INTERVAL_MS,
+        EventGapMs: EVENT_GAP_MS,
+        EventQuietMs: EVENT_QUIET_MS,
+        BetweenEventsMs: BETWEEN_EVENTS_MS,
+        RetryDelayMs: RETRY_DELAY_MS
     };
 
     for(const [name, value] of Object.entries(requiredSettings)) {
-        if(value === undefined || value === null || value === "") {
-            logger.error(`Door camera: Missing configuration setting ${name}.`);
+        if(
+            value === undefined ||
+            value === null ||
+            value === ""
+        ) {
+            logger.error(
+                "Door camera: Missing configuration setting " + name + "."
+            );
             return;
         }
     }
 
     if(
+        typeof INDEX_FILE_NAME !== "string" ||
+        typeof CHANNEL_ID !== "string" ||
         typeof CAPTURE_DIR !== "string" ||
-        !Number.isFinite(MAX_FILE_SIZE) || MAX_FILE_SIZE <= 0 ||
-        !Number.isInteger(POLL_INTERVAL_MS) || POLL_INTERVAL_MS <= 0 ||
-        !Number.isInteger(BATCH_DELAY_MS) || BATCH_DELAY_MS < 0 ||
-        !Number.isInteger(RETRY_DELAY_MS) || RETRY_DELAY_MS <= 0
+        !Number.isFinite(MAX_FILE_SIZE) ||
+        MAX_FILE_SIZE <= 0 ||
+        !Number.isFinite(MAX_MESSAGE_SIZE) ||
+        MAX_MESSAGE_SIZE <= 0 ||
+        !Number.isInteger(POLL_INTERVAL_MS) ||
+        POLL_INTERVAL_MS <= 0 ||
+        !Number.isInteger(EVENT_GAP_MS) ||
+        EVENT_GAP_MS < 0 ||
+        !Number.isInteger(EVENT_QUIET_MS) ||
+        EVENT_QUIET_MS < 0 ||
+        !Number.isInteger(BETWEEN_EVENTS_MS) ||
+        BETWEEN_EVENTS_MS < 0 ||
+        !Number.isInteger(RETRY_DELAY_MS) ||
+        RETRY_DELAY_MS <= 0
     ) {
         logger.error("Door camera: Invalid configuration values.");
         return;
     }
 
-    started = true;
+    // Persistent upload index
+    const INDEX_FILE = path.join(
+        CAPTURE_DIR,
+        INDEX_FILE_NAME
+    );
 
-    const seen = new Set();
-    const stableFiles = new Map();
-    const pending = new Map();
+    const INDEX_TEMP_FILE = INDEX_FILE + ".tmp";
 
-    let lastNewFileAt = 0;
-    let retryAt = 0;
-    let scanning = false;
-    let sending = false;
+    let uploadIndex = {
+        version: 1,
+        uploads: {}
+    };
 
-    async function getCaptureFiles() {
-        const results = [];
+    let processing = false;
+    let lastEventSentAt = 0;
 
-        let dates;
+    // Tracks file stability between scans.
+    const stability = new Map();
 
-        try {
-            dates = await fs.promises.readdir(CAPTURE_DIR, {
-                withFileTypes: true
-            });
-        } catch(error) {
-            if(error.code !== "ENOENT") {
-                logger.error(
-                    `Door camera: Cannot read capture directory: ${error.message}`
-                );
-            }
-            return results;
-        }
+    // Tracks the next permitted retry time for failed events.
+    const retryAfter = new Map();
 
-        for(const entry of dates) {
-            if(!entry.isDirectory() ||
-                !/^\d{4}-\d{2}-\d{2}$/.test(entry.name)
-            ) {
-                continue;
-            }
+    // Avoids repeating oversized-file warnings.
+    const oversizedWarnings = new Set();
 
-            const directory = path.join(CAPTURE_DIR, entry.name);
-
-            let files;
-
-            try {
-                files = await fs.promises.readdir(directory, {
-                    withFileTypes: true
-                });
-            } catch(error) {
-                logger.warn(
-                    `Door camera: Cannot read ${directory}: ${error.message}`
-                );
-                continue;
-            }
-
-            for(const file of files) {
-                if(
-                    file.isFile() &&
-                    file.name.toLowerCase().endsWith(".mp4")
-                ) {
-                    results.push(path.join(directory, file.name));
-                }
-            }
-        }
-
-        return results;
+    function logInfo(message) {
+        logger.info("Door camera: " + message);
     }
 
-    // Ignore recordings that existed before the DEV bot started.
-    async function initializeExistingFiles() {
-        const files = await getCaptureFiles();
+    function logWarn(message) {
+        logger.warn("Door camera: " + message);
+    }
 
-        for(const file of files) {
-            seen.add(file);
+    function logError(message) {
+        logger.error("Door camera: " + message);
+    }
+
+    function sleep(ms) {
+        return new Promise(function (resolve) {
+            setTimeout(resolve, ms);
+        });
+    }
+
+    function getRelativePath(filePath) {
+        return path.relative(CAPTURE_DIR, filePath)
+            .split(path.sep)
+            .join("/");
+    }
+
+    function parseRecordingTimestamp(filename) {
+        // MiBee filename format contains: _YYYYMMDD_HHMMSS_
+        const match = filename.match(/_(\d{8})_(\d{6})_/);
+
+        if(!match) {
+            return null;
         }
 
-        logger.info(
-            `Door camera: Watcher initialized; ignoring ${seen.size} existing MP4 file(s).`
+        const datePart = match[1];
+        const timePart = match[2];
+
+        const year = Number(datePart.substring(0, 4));
+        const month = Number(datePart.substring(4, 6)) - 1;
+        const day = Number(datePart.substring(6, 8));
+
+        const hour = Number(timePart.substring(0, 2));
+        const minute = Number(timePart.substring(2, 4));
+        const second = Number(timePart.substring(4, 6));
+
+        return Date.UTC(
+            year,
+            month,
+            day,
+            hour,
+            minute,
+            second
         );
     }
 
-    async function scan() {
-        if(scanning) return;
+    function makeEventId(timestamp) {
+        const date = new Date(timestamp);
 
-        scanning = true;
+        return date.getUTCFullYear() + "-" +
+            String(date.getUTCMonth() + 1).padStart(2, "0") + "-" +
+            String(date.getUTCDate()).padStart(2, "0") + "_" +
+            String(date.getUTCHours()).padStart(2, "0") + "-" +
+            String(date.getUTCMinutes()).padStart(2, "0") + "-" +
+            String(date.getUTCSeconds()).padStart(2, "0");
+    }
 
+    async function loadUploadIndex() {
         try {
-            const files = await getCaptureFiles();
-
-            for(const file of files) {
-                if(seen.has(file)) continue;
-
-                let stat;
-
-                try {
-                    stat = await fs.promises.stat(file);
-                } catch {
-                    continue;
-                }
-
-                if(!stat.isFile()) continue;
-
-                const previous = stableFiles.get(file);
-
-                if(!previous || previous.size !== stat.size) {
-                    stableFiles.set(file, {
-                        size: stat.size,
-                        stable: false
-                    });
-                    continue;
-                }
-
-                if(!previous.stable) {
-                    stableFiles.set(file, {
-                        size: stat.size,
-                        stable: true
-                    });
-
-                    if(stat.size >= MAX_FILE_SIZE) {
-                        logger.warn(
-                            `Door camera: Rejected file at or above ${config.DoorCameraMaxFileSizeMB} MB: ${file} (${stat.size} bytes)`
-                        );
-
-                        seen.add(file);
-                        stableFiles.delete(file);
-                        continue;
-                    }
-
-                    if(stat.size === 0) {
-                        logger.warn(
-                            `Door camera: Rejected empty file: ${file}`
-                        );
-
-                        seen.add(file);
-                        stableFiles.delete(file);
-                        continue;
-                    }
-
-                    pending.set(file, stat.size);
-                    lastNewFileAt = Date.now();
-
-                    logger.info(
-                        `Door camera: New finalized video detected: ${path.basename(file)} (${stat.size} bytes)`
-                    );
-                }
-            }
-
-            // Send collected segments after the batch delay.
-            if(
-                pending.size > 0 &&
-                !sending &&
-                Date.now() - lastNewFileAt >= BATCH_DELAY_MS &&
-                Date.now() >= retryAt
-            ) {
-                await sendPendingVideos();
-            }
-        } catch(error) {
-            logger.error(
-                `Door camera: Scan failed: ${error.message}\n${error.stack}`
+            const contents = await fs.promises.readFile(
+                INDEX_FILE,
+                "utf8"
             );
-        } finally {
-            scanning = false;
+
+            const parsed = JSON.parse(contents);
+
+            if(!parsed ||
+                parsed.version !== 1 ||
+                !parsed.uploads ||
+                typeof parsed.uploads !== "object" ||
+                Array.isArray(parsed.uploads)
+            ) {
+                throw new Error("Unexpected index structure.");
+            }
+
+            uploadIndex = parsed;
+
+            logInfo(
+                "Loaded upload index containing " +
+                Object.keys(uploadIndex.uploads).length +
+                " successfully uploaded recording(s)."
+            );
+        } catch(error) {
+            if(error.code === "ENOENT") {
+                uploadIndex = {
+                    version: 1,
+                    uploads: {}
+                };
+
+                await saveUploadIndex();
+
+                logInfo("Created a new persistent upload index.");
+                return;
+            }
+
+            // Never silently reset an existing damaged index.
+            throw new Error(
+                "Cannot safely load upload index: " + error.message
+            );
         }
     }
 
-    async function sendPendingVideos() {
-        if(sending || pending.size === 0) return;
+    async function saveUploadIndex() {
+        const contents = JSON.stringify(uploadIndex, null, 2);
 
-        sending = true;
+        await fs.promises.writeFile(
+            INDEX_TEMP_FILE,
+            contents, {
+                encoding: "utf8",
+                mode: 0o660
+            }
+        );
 
-        const batch = [...pending.entries()];
+        await fs.promises.rename(
+            INDEX_TEMP_FILE,
+            INDEX_FILE
+        );
+    }
 
-        try {
-            const channel = await client.channels.fetch(channelId);
+    async function scanCaptureDirectory() {
+        const files = [];
 
-            if(!channel ||
-                !channel.isTextBased() ||
-                typeof channel.send !== "function"
-            ) {
-                throw new Error(
-                    "Configured destination is not a sendable text channel."
-                );
+        const entries = await fs.promises.readdir(
+            CAPTURE_DIR, { withFileTypes: true }
+        );
+
+        for(const entry of entries) {
+            if(!entry.isDirectory()) {
+                continue;
             }
 
-            if(
-                channel.guildId &&
-                channel.guildId !== config.GuildId
-            ) {
-                throw new Error(
-                    "Destination channel does not belong to the configured DEV guild."
-                );
-            }
+            const dateDirectory = path.join(
+                CAPTURE_DIR,
+                entry.name
+            );
 
-            // Recheck file sizes immediately before uploading.
-            const attachments = [];
+            const dateEntries = await fs.promises.readdir(
+                dateDirectory, { withFileTypes: true }
+            );
 
-            for(const [file] of batch) {
-                const stat = await fs.promises.stat(file);
-
-                if(!stat.isFile() ||
-                    stat.size === 0 ||
-                    stat.size >= MAX_FILE_SIZE
+            for(const dateEntry of dateEntries) {
+                if(!dateEntry.isFile() ||
+                    !dateEntry.name.toLowerCase().endsWith(".mp4")
                 ) {
-                    logger.warn(
-                        `Door camera: File failed final size validation: ${file}`
-                    );
-
-                    pending.delete(file);
-                    seen.add(file);
                     continue;
                 }
 
-                attachments.push({
-                    attachment: file,
-                    name: path.basename(file)
+                const fullPath = path.join(
+                    dateDirectory,
+                    dateEntry.name
+                );
+
+                const relativePath = getRelativePath(fullPath);
+
+                // Already successfully uploaded.
+                if(uploadIndex.uploads[relativePath]) {
+                    stability.delete(relativePath);
+                    continue;
+                }
+
+                const stat = await fs.promises.stat(fullPath);
+
+                const timestamp = parseRecordingTimestamp(
+                    dateEntry.name
+                );
+
+                if(timestamp === null) {
+                    logWarn(
+                        "Cannot read recording timestamp from filename: " +
+                        relativePath
+                    );
+
+                    continue;
+                }
+
+                const previous = stability.get(relativePath);
+
+                const stable = Boolean(
+                    previous &&
+                    previous.size === stat.size &&
+                    previous.mtimeMs === stat.mtimeMs
+                );
+
+                stability.set(relativePath, {
+                    size: stat.size,
+                    mtimeMs: stat.mtimeMs
+                });
+
+                files.push({
+                    name: dateEntry.name,
+                    fullPath: fullPath,
+                    relativePath: relativePath,
+                    timestamp: timestamp,
+                    mtimeMs: stat.mtimeMs,
+                    size: stat.size,
+                    stable: stable
                 });
             }
+        }
 
-            if(attachments.length === 0) return;
+        files.sort(function (a, b) {
+            if(a.timestamp !== b.timestamp) {
+                return a.timestamp - b.timestamp;
+            }
 
-            await channel.send({
-                content: `Door camera alert — ${attachments.length} video segment(s) captured around the door event.`,
+            return a.name.localeCompare(b.name);
+        });
+
+        return files;
+    }
+
+    function groupFilesIntoEvents(files) {
+        const events = [];
+        let currentEvent = null;
+
+        for(const file of files) {
+            if(!currentEvent) {
+                currentEvent = {
+                    id: makeEventId(file.timestamp),
+                    files: [file],
+                    latestTimestamp: file.timestamp,
+                    latestMtime: file.mtimeMs
+                };
+
+                continue;
+            }
+
+            const previousFile =
+                currentEvent.files[currentEvent.files.length - 1];
+
+            const gap = file.timestamp - previousFile.timestamp;
+
+            if(gap <= EVENT_GAP_MS) {
+                currentEvent.files.push(file);
+
+                currentEvent.latestTimestamp = file.timestamp;
+
+                if(file.mtimeMs > currentEvent.latestMtime) {
+                    currentEvent.latestMtime = file.mtimeMs;
+                }
+            } else {
+                events.push(currentEvent);
+
+                currentEvent = {
+                    id: makeEventId(file.timestamp),
+                    files: [file],
+                    latestTimestamp: file.timestamp,
+                    latestMtime: file.mtimeMs
+                };
+            }
+        }
+
+        if(currentEvent) {
+            events.push(currentEvent);
+        }
+
+        return events;
+    }
+
+    function splitEventIntoUploadChunks(files) {
+        const chunks = [];
+        let currentChunk = [];
+        let currentSize = 0;
+
+        for(const file of files) {
+            if(file.size >= MAX_FILE_SIZE) {
+                if(!oversizedWarnings.has(file.relativePath)) {
+                    logError(
+                        "Recording is at or above the configured file-size " +
+                        "limit and was NOT uploaded or indexed: " +
+                        file.relativePath
+                    );
+
+                    oversizedWarnings.add(file.relativePath);
+                }
+
+                continue;
+            }
+
+            if(file.size <= 0) {
+                logError(
+                    "Recording is empty and was not uploaded: " +
+                    file.relativePath
+                );
+
+                continue;
+            }
+
+            if(
+                currentChunk.length > 0 &&
+                currentSize + file.size > MAX_MESSAGE_SIZE
+            ) {
+                chunks.push(currentChunk);
+
+                currentChunk = [];
+                currentSize = 0;
+            }
+
+            currentChunk.push(file);
+            currentSize += file.size;
+        }
+
+        if(currentChunk.length > 0) {
+            chunks.push(currentChunk);
+        }
+
+        return chunks;
+    }
+
+    async function getDestinationChannel() {
+        const channel = await client.channels.fetch(CHANNEL_ID);
+
+        if(!channel) {
+            throw new Error(
+                "Discord destination channel was not found: " + CHANNEL_ID
+            );
+        }
+
+        if(typeof channel.send !== "function") {
+            throw new Error(
+                "Discord destination is not a sendable channel."
+            );
+        }
+
+        if(
+            GUILD_ID &&
+            channel.guild &&
+            channel.guild.id !== GUILD_ID
+        ) {
+            throw new Error(
+                "Destination channel belongs to a different guild."
+            );
+        }
+
+        return channel;
+    }
+
+    async function uploadEvent(event) {
+        const chunks = splitEventIntoUploadChunks(event.files);
+
+        if(chunks.length === 0) {
+            logError(
+                "Event " + event.id +
+                " has no eligible files. Oversized or empty files remain unindexed."
+            );
+
+            return false;
+        }
+
+        const channel = await getDestinationChannel();
+
+        for(let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+            const chunk = chunks[chunkIndex];
+
+            const attachments = chunk.map(function (file) {
+                return {
+                    attachment: file.fullPath,
+                    name: file.name
+                };
+            });
+
+            let content =
+                "Door camera alert — " +
+                event.files.length +
+                " recording(s) captured around the door event.";
+
+            if(chunks.length > 1) {
+                content +=
+                    " Part " + (chunkIndex + 1) +
+                    " of " + chunks.length + ".";
+            }
+
+            // Discord must confirm the message before files are indexed.
+            const message = await channel.send({
+                content: content,
                 files: attachments
             });
 
-            for(const attachment of attachments) {
-                const matchingEntry = batch.find(
-                    ([candidate]) => path.basename(candidate) === attachment.name);
+            const uploadedAt = new Date().toISOString();
 
-                    const file = matchingEntry ? matchingEntry[0] : null;
-                if(file) {
-                    pending.delete(file);
-                    seen.add(file);
-                    stableFiles.delete(file);
-                }
+            for(const file of chunk) {
+                uploadIndex.uploads[file.relativePath] = {
+                    filename: file.name,
+                    uploadedAt: uploadedAt,
+                    discordMessageId: message.id,
+                    eventId: event.id
+                };
             }
 
-            logger.info(
-                `Door camera: Successfully sent ${attachments.length} video segment(s) to Discord.`
+            // If saving fails after sending, the files remain unindexed.
+            // They may be sent again after restart, which is preferable
+            // to silently missing an alert.
+            await saveUploadIndex();
+
+            logInfo(
+                "Uploaded " + chunk.length +
+                " recording(s) for event " + event.id +
+                ". Discord message: " + message.id
             );
+        }
 
-            retryAt = 0;
+        return true;
+    }
+
+    async function processPendingEvents() {
+        if(processing) {
+            return;
+        }
+
+        processing = true;
+
+        try {
+            const files = await scanCaptureDirectory();
+
+            if(files.length === 0) {
+                return;
+            }
+
+            const events = groupFilesIntoEvents(files);
+
+            for(const event of events) {
+                // Wait until every file has a stable size and modification time.
+                const allStable = event.files.every(function (file) {
+                    return file.stable;
+                });
+
+                if(!allStable) {
+                    continue;
+                }
+
+                // Wait until the latest file has been quiet long enough.
+                const quietTime = Date.now() - event.latestMtime;
+
+                if(quietTime < EVENT_QUIET_MS) {
+                    continue;
+                }
+
+                // Respect retry delay after a failed event upload.
+                const retryTime = retryAfter.get(event.id);
+
+                if(retryTime && Date.now() < retryTime) {
+                    continue;
+                }
+
+                // Enforce the minimum interval between separate events.
+                const timeSinceLastEvent = Date.now() - lastEventSentAt;
+
+                if(
+                    lastEventSentAt > 0 &&
+                    timeSinceLastEvent < BETWEEN_EVENTS_MS
+                ) {
+                    const remaining =
+                        BETWEEN_EVENTS_MS - timeSinceLastEvent;
+
+                    logInfo(
+                        "Waiting " + Math.ceil(remaining / 1000) +
+                        " seconds before the next event upload."
+                    );
+
+                    // Log once, then wait. No repeated countdown messages.
+                    await sleep(remaining);
+                }
+
+                try {
+                    const uploaded = await uploadEvent(event);
+
+                    if(uploaded) {
+                        lastEventSentAt = Date.now();
+                        retryAfter.delete(event.id);
+                    }
+                } catch(error) {
+                    retryAfter.set(
+                        event.id,
+                        Date.now() + RETRY_DELAY_MS
+                    );
+
+                    logError(
+                        "Upload failed for event " + event.id +
+                        ". Recordings remain unindexed. Retrying in " +
+                        Math.ceil(RETRY_DELAY_MS / 1000) +
+                        " seconds. Error: " + error.message
+                    );
+
+                    // Preserve chronological order; retry this event later.
+                    break;
+                }
+            }
         } catch(error) {
-            retryAt = Date.now() + RETRY_DELAY_MS;
-
-            logger.error(
-                `Door camera: Discord upload failed; will retry: ${error.message}\n${error.stack}`
+            logError(
+                "Directory scan or processing failed: " + error.message
             );
         } finally {
-            sending = false;
+            processing = false;
         }
     }
 
+    // Initialize the watcher and index.
     try {
-        await initializeExistingFiles();
-
-        logger.info(
-            "Door camera: Starting capture directory monitoring."
+        await fs.promises.access(
+            CAPTURE_DIR,
+            fs.constants.R_OK | fs.constants.W_OK
         );
 
-        setInterval(scan, POLL_INTERVAL_MS);
+        await loadUploadIndex();
     } catch(error) {
-        logger.error(
-            `Door camera: Watcher initialization failed: ${error.message}\n${error.stack}`
+        logError(
+            "Watcher was NOT started because its capture directory or " +
+            "upload index is unavailable: " + error.message
         );
+
+        return;
     }
+
+    module.exports.started = true;
+
+    logInfo(
+        "Persistent watcher initialized. Checking all recordings, " +
+        "including files left behind during bot outages."
+    );
+
+    // Recover pending recordings immediately after startup.
+    await processPendingEvents();
+
+    // Continue checking for new recordings.
+    setInterval(function () {
+        processPendingEvents();
+    }, POLL_INTERVAL_MS);
 };
+
+module.exports.started = false;
