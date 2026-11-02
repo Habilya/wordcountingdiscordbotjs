@@ -4,7 +4,8 @@
   "description": "A discord bot to count how many times a specific word or a pattern was spoken",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
+    "test-mem": "jest --verbose --detectOpenHandles",
     "test-mon": "jest --watchAll --verbose"
   },
   "jest": {

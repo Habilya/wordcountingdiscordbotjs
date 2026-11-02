@@ -11,11 +11,11 @@ describe('01initialized.js tests', () => {
     discordBot.setLogger({
         info: jest.fn(),
         error: jest.fn(),
-        warning: jest.fn()
+        warn: jest.fn()
     });
 
 
-    it('discordBot.logger.warning Should have been called to log validations (Empty config)', () => {
+    it('discordBot.logger.warn Should have been called to log validations (Empty config)', () => {
         // Arrange
         const config = {};
         discordBot.setConfig(config);
@@ -24,15 +24,15 @@ describe('01initialized.js tests', () => {
         discordBot.validateConfig();
 
         // Assert
-        expect(discordBot.getLogger().warning.mock.calls).toHaveLength(3);
-        expect(discordBot.getLogger().warning.mock.calls).toEqual([
+        expect(discordBot.getLogger().warn.mock.calls).toHaveLength(3);
+        expect(discordBot.getLogger().warn.mock.calls).toEqual([
             ["Field Token must be configured in the conf/config.json file"],
             ["Field GuildId must be configured in the conf/config.json file"],
             ["Field ClientId must be configured in the conf/config.json file"]
         ]);
     });
 
-    it('discordBot.logger.warning Should have been called to log validations (Empty config)', () => {
+    it('discordBot.logger.warn Should have been called to log validations (Empty config)', () => {
         // Arrange
         const config = {
             "isReactionToUserMessagesEnabled": true,
@@ -43,8 +43,8 @@ describe('01initialized.js tests', () => {
         discordBot.validateConfig();
 
         // Assert
-        expect(discordBot.getLogger().warning.mock.calls).toHaveLength(6);
-        expect(discordBot.getLogger().warning.mock.calls).toEqual([
+        expect(discordBot.getLogger().warn.mock.calls).toHaveLength(6);
+        expect(discordBot.getLogger().warn.mock.calls).toEqual([
             ["Field Token must be configured in the conf/config.json file"],
             ["Field GuildId must be configured in the conf/config.json file"],
             ["Field ClientId must be configured in the conf/config.json file"],
