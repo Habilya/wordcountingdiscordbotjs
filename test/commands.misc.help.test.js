@@ -25,7 +25,7 @@ describe('Command help.js tests', () => {
             fields: [
               {
                 name: "Ver.",
-                value: "1.0.6",
+                value: "1.0.7",
               },
               {
                 name: "Description",

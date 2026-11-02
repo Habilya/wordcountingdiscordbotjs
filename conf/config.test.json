@@ -6,5 +6,17 @@
   "isReactionToUserMessagesEnabled": true,
   "ReactionsReportTemplateFolderFullPath": "[YOUR_REPORTS_TEMPLATES_PATH]",
   "ChromiumBrowserPath": "[YOUR_CHROMIUM_BROWSER_PATH]",
-  "MongodbURI": "[YOUR_MONGODB_URI_HERE]"
+  "MongodbURI": "[YOUR_MONGODB_URI_HERE]",
+  "DoorCameraProcessing": {
+    "ChannelId": "[channe_id]",
+    "CaptureDirectory": "[directory with captures]",
+    "IndexFileName": ".discord-upload-index.json",
+    "MaxFileSizeMB": 9,
+    "MaxMessageSizeMB": 20,
+    "PollIntervalMs": 2000,
+    "EventGapMs": 60000,
+    "EventQuietMs": 60000,
+    "BetweenEventsMs": 60000,
+    "RetryDelayMs": 30000
+  }
 }
